@@ -95,7 +95,7 @@ NULL
 #'     to descriptive names (i.e. \code{0} = \code{"terrestrial"},
 #'     \code{1} = \code{"partial"}, \code{2} = \code{"marine"}).
 #'
-#'   \item Zeros in the \code{"STATUS_YR"} fi_eld are replaced with
+#'   \item Zeros in the \code{"STATUS_YR"} field are replaced with
 #'     missing values (i.e. \code{NA_real_} values).
 #'
 #'   \item Zeros in the \code{"NO_TK_AREA"} field are replaced with \code{NA}
@@ -220,7 +220,9 @@ wdpa_clean <- function(x,
   x <- sf::st_set_precision(x, geometry_precision)
   x <- lwgeom::st_make_valid(x)
   x <- x[!sf::st_is_empty(x), ]
-  x <- suppressWarnings(sf::st_collection_extract(x, "POLYGON"))
+  x <- rbind(suppressWarnings(sf::st_collection_extract(x, "POLYGON")),
+             x[vapply(sf::st_geometry(x), inherits, logical(1),
+                      c("POINT", "MULTIPOINT")), drop = FALSE])
   if (verbose) {
     utils::flush.console()
     message("repairing geometry: ", cli::symbol$tick)
@@ -232,7 +234,9 @@ wdpa_clean <- function(x,
   x <- suppressWarnings(sf::st_wrap_dateline(x,
     options = c("WRAPDATELINE=YES", "DATELINEOFFSET=180")))
   x <- x[!sf::st_is_empty(x), ]
-  x <- suppressWarnings(sf::st_collection_extract(x, "POLYGON"))
+  x <- rbind(suppressWarnings(sf::st_collection_extract(x, "POLYGON")),
+             x[vapply(sf::st_geometry(x), inherits, logical(1),
+                      c("POINT", "MULTIPOINT")), drop = FALSE])
   x <- sf::st_set_precision(x, geometry_precision)
   if (verbose) {
     utils::flush.console()
@@ -244,7 +248,9 @@ wdpa_clean <- function(x,
   x <- sf::st_set_precision(x, geometry_precision)
   x <- lwgeom::st_make_valid(x)
   x <- x[!sf::st_is_empty(x), ]
-  x <- suppressWarnings(sf::st_collection_extract(x, "POLYGON"))
+  x <- rbind(suppressWarnings(sf::st_collection_extract(x, "POLYGON")),
+             x[vapply(sf::st_geometry(x), inherits, logical(1),
+                      c("POINT", "MULTIPOINT")), drop = FALSE])
   x <- sf::st_set_precision(x, geometry_precision)
   if (verbose) {
     utils::flush.console()
@@ -265,7 +271,9 @@ wdpa_clean <- function(x,
                        appendLF = FALSE)
   x <- lwgeom::st_make_valid(x)
   x <- x[!sf::st_is_empty(x), ]
-  x <- suppressWarnings(sf::st_collection_extract(x, "POLYGON"))
+  x <- rbind(suppressWarnings(sf::st_collection_extract(x, "POLYGON")),
+             x[vapply(sf::st_geometry(x), inherits, logical(1),
+                      c("POINT", "MULTIPOINT")), drop = FALSE])
   x <- sf::st_set_precision(x, geometry_precision)
   if (verbose) {
     utils::flush.console()
