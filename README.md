@@ -36,12 +36,15 @@ library(dplyr)
 library(ggmap)
 ```
 
-Now we will download protected area data for Malta from [Protected Planet](protectedplanet.net). We can achieve this by specifying Malta's country name (i.e. `"Malta"`) or Malta's [ISO3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) (i.e. `"MLT"`).
+Now we will download protected area data for Malta from [Protected Planet](https://www.protectedplanet.net/). We can achieve this by specifying Malta's country name (i.e. `"Malta"`) or Malta's [ISO3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) (i.e. `"MLT"`).
 
 ``` r
 # download protected area data for Malta
 mlt_raw_pa_data <- wdpa_fetch("Malta", wait = TRUE)
 ```
+
+    ## Warning in wdpa_fetch("Malta", wait = TRUE): local data is out of date: Apr
+    ## 2019
 
 Next, we will clean the data set. Briefly, the cleaning steps include: excluding protected areas that are not yet implemented, excluding protected areas with limited conservation value, replacing missing data codes (e.g. `"0"`) with missing data values (i.e. `NA`), replacing protected areas represented as points with circular protected areas that correspond to their reported extent, repairing any topological issues with the geometries, and erasing overlapping areas. For more information, see `?wdpa_clean`.
 
@@ -108,7 +111,7 @@ Please cite the *wdpar R* package and the World Database on Protected Areas (WDP
     To cite the wdpar package in publications, use:
 
       Hanson JO (2019) wdpar: Interface to the World Database on
-      Protected Areas. R package version 0.0.3.
+      Protected Areas. R package version 1.0.0.
       https://CRAN.R-project.org/package=wdpar
 
       UNEP-WCMC and IUCN (2019) Protected Planet: The World Database

@@ -1,3 +1,12 @@
+# wdpar 1.0.0
+
+- CRAN release.
+- Fix links in CITATION, README, and vignette.
+
+# wdpar 0.0.4
+
+- Fix false reports of lack of Internet connectivity (#10).
+
 # wdpar 0.0.3
 
 - CRAN release.
