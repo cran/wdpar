@@ -19,13 +19,18 @@ NULL
 #'
 #' @param geometry_precision \code{numeric} level of precision for processing
 #'   the spatial data (used with \code{\link[sf]{st_set_precision}}). The
-#'   default argument corresponds to the nearest millimeter (i.e. 1000).
+#'   default argument is 1000 (higher values indicate higher precision).
+#'   This level of precision is generally suitable for analyses at the
+#'   national-scale. For analyses at finer-scale resolutions, please
+#'   consider using a greater value (e.g. 10000).
 #'
-#' @param erase_overlaps \code{logical} should overlapping boundaries be removed
-#'   erased? This can be useful when the protected area boundaries are
-#'   going to be rasterized, and so processing time can be substantially
-#'   reduced by skipping this step because overlapping boundaries will not be a
-#'   problem. Defaults to \code{TRUE}.
+#' @param erase_overlaps \code{logical} should overlapping boundaries be
+#'   erased? This is useful for making comparisons between individual
+#'   protected areas and understanding their "effective" geographic coverage.
+#'   On the other hand, this processing step may not be needed
+#'   (e.g. if the protected area boundaries are going to be rasterized), and so
+#'   processing time can be substantially by skipping this step and setting
+#'   the argument to \code{FALSE}. Defaults to \code{TRUE}.
 #'
 #' @param verbose \code{logical} should progress on data cleaning be reported?
 #'   Defaults to \code{TRUE} in an interactive session, otherwise
@@ -69,7 +74,7 @@ NULL
 #'   \item Reproject data to coordinate system specified in argument to
 #'     \code{crs} (using \code{\link[sf]{st_transform}}).
 #'
-#'   \item Fix any invalid geometries that have manifested (using
+#'   \item Fix any invalid geometries that have manifested
 #'     (using \code{\link[lwgeom]{st_make_valid}}).
 #'
 #'   \item Buffer areas represented as point localities to circular areas
@@ -81,14 +86,14 @@ NULL
 #'     geometry issues (using argument to \code{snap_tolerance} and
 #'     \code{\link[lwgeom]{st_snap_to_grid}}).
 #'
-#'   \item Fix any invalid geometries that have manifested (using
+#'   \item Fix any invalid geometries that have manifested
 #'     (using \code{\link[lwgeom]{st_make_valid}}).
 #'
 #'   \item Simplify the protected area geometries to reduce computational burden
 #'     (using argument to \code{simplify_tolerance} and
 #'     \code{\link[sf]{st_simplify}}).
 #'
-#'   \item Fix any invalid geometries that have manifested (using
+#'   \item Fix any invalid geometries that have manifested
 #'     (using \code{\link[lwgeom]{st_make_valid}}).
 #'
 #'   \item The \code{"MARINE"} field is converted from integer codes
@@ -161,7 +166,8 @@ wdpa_clean <- function(x,
                        crs = paste("+proj=cea +lon_0=0 +lat_ts=30 +x_0=0",
                        "+y_0=0 +datum=WGS84 +ellps=WGS84 +units=m +no_defs"),
                        snap_tolerance = 1,
-                       simplify_tolerance = 0, geometry_precision = 1000,
+                       simplify_tolerance = 0,
+                       geometry_precision = 1000,
                        erase_overlaps = TRUE,
                        verbose = interactive()) {
   # check arguments are valid
@@ -220,13 +226,12 @@ wdpa_clean <- function(x,
   x <- sf::st_set_precision(x, geometry_precision)
   x <- lwgeom::st_make_valid(x)
   x <- x[!sf::st_is_empty(x), ]
-  x <- rbind(suppressWarnings(sf::st_collection_extract(x, "POLYGON")),
-             x[vapply(sf::st_geometry(x), inherits, logical(1),
-                      c("POINT", "MULTIPOINT")), drop = FALSE])
+  x <- extract_polygons_and_points(x)
   if (verbose) {
     utils::flush.console()
     message("repairing geometry: ", cli::symbol$tick)
   }
+
   ## wrap dateline issues
   if (verbose) message("wrapping dateline: ", cli::symbol$continue, "\r",
                        appendLF = FALSE)
@@ -234,9 +239,7 @@ wdpa_clean <- function(x,
   x <- suppressWarnings(sf::st_wrap_dateline(x,
     options = c("WRAPDATELINE=YES", "DATELINEOFFSET=180")))
   x <- x[!sf::st_is_empty(x), ]
-  x <- rbind(suppressWarnings(sf::st_collection_extract(x, "POLYGON")),
-             x[vapply(sf::st_geometry(x), inherits, logical(1),
-                      c("POINT", "MULTIPOINT")), drop = FALSE])
+  x <- extract_polygons_and_points(x)
   x <- sf::st_set_precision(x, geometry_precision)
   if (verbose) {
     utils::flush.console()
@@ -248,9 +251,7 @@ wdpa_clean <- function(x,
   x <- sf::st_set_precision(x, geometry_precision)
   x <- lwgeom::st_make_valid(x)
   x <- x[!sf::st_is_empty(x), ]
-  x <- rbind(suppressWarnings(sf::st_collection_extract(x, "POLYGON")),
-             x[vapply(sf::st_geometry(x), inherits, logical(1),
-                      c("POINT", "MULTIPOINT")), drop = FALSE])
+  x <- extract_polygons_and_points(x)
   x <- sf::st_set_precision(x, geometry_precision)
   if (verbose) {
     utils::flush.console()
@@ -271,9 +272,7 @@ wdpa_clean <- function(x,
                        appendLF = FALSE)
   x <- lwgeom::st_make_valid(x)
   x <- x[!sf::st_is_empty(x), ]
-  x <- rbind(suppressWarnings(sf::st_collection_extract(x, "POLYGON")),
-             x[vapply(sf::st_geometry(x), inherits, logical(1),
-                      c("POINT", "MULTIPOINT")), drop = FALSE])
+  x <- extract_polygons_and_points(x)
   x <- sf::st_set_precision(x, geometry_precision)
   if (verbose) {
     utils::flush.console()
@@ -373,7 +372,7 @@ wdpa_clean <- function(x,
     message("formatting attribute data: ", cli::symbol$tick)
   }
   ## remove overlaps data
-  if (erase_overlaps) {
+  if (erase_overlaps && isTRUE(nrow(x) > 1)) {
     if (verbose) message("erasing overlaps: ", cli::symbol$continue)
     x$IUCN_CAT <- factor(as.character(x$IUCN_CAT),
                          levels = c("Ia", "Ib", "II", "III", "IV", "V", "VI",
@@ -405,6 +404,11 @@ wdpa_clean <- function(x,
     message("calculating area: ", cli::symbol$tick)
   }
   ## move geometry to last column
+  if ((!"geometry" %in% names(x))) {
+    geom_col <- attr(x, "sf_column")
+    attr(x, "sf_column") <- "geometry"
+    names(x)[names(x) == geom_col] <- "geometry"
+  }
   x <- x[, c(setdiff(names(x), "geometry"), "geometry")]
   # return cleaned data
   return(x)

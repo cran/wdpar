@@ -1,3 +1,27 @@
+# wdpar 1.0.1
+
+- CRAN release.
+
+# wdpar 1.0.0.4
+
+- Update `wdpa_clean` so that it works with a single protected area.
+- Tweak progress bar in `st_erase_overlaps`.
+
+# wdpar 1.0.0.3
+
+- Update `wdpa_clean` so that it works with shapefiles that do not have geometry
+  stored in the `geometry` column (e.g. global data).
+
+# wdpar 1.0.0.2
+
+- Update `st_erase_overlaps` so that it has a higher success rate for
+  really invalid geometries (e.g. protected areas for Gabon).
+
+# wdpar 1.0.0.1
+
+- Add extra data cleaning step to vignette so that the tutorial has a better
+  chance at working when adapted to other countries.
+
 # wdpar 1.0.0
 
 - CRAN release.

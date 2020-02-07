@@ -1,6 +1,6 @@
 Package: wdpar
 Type: Package
-Version: 1.0.0
+Version: 1.0.1
 Title: Interface to the World Database on Protected Areas
 Description: Fetch and clean data from the World Database on Protected
     Areas (WDPA). Data is obtained from Protected Planet
@@ -25,8 +25,8 @@ RoxygenNote: 6.1.1
 Collate: 'internal.R' 'geo.R' 'package.R' 'wdpa_clean.R' 'wdpa_url.R'
         'wdpa_fetch.R' 'wdpa_read.R' 'zzz.R'
 NeedsCompilation: no
-Packaged: 2019-06-29 17:04:57 UTC; jeff
+Packaged: 2020-02-06 22:01:38 UTC; jeff
 Author: Jeffrey O Hanson [aut, cre]
 Maintainer: Jeffrey O Hanson <jeffrey.hanson@uqconnect.edu.au>
 Repository: CRAN
-Date/Publication: 2019-06-29 17:20:04 UTC
+Date/Publication: 2020-02-07 01:10:02 UTC

@@ -31,7 +31,8 @@ test_that("wdpa_clean (single country without eez)", {
   skip_if_not(curl::has_internet())
   # fetch data
   x <- wdpa_clean(suppressWarnings(wdpa_fetch("LIE", wait = TRUE,
-                                              force = TRUE)))
+                                              force = TRUE)),
+                  geometry_precision = 1000)
   # run tests
   expect_gt(nrow(x), 0)
   expect_true(all(wdpa_column_names %in% names(x)))
@@ -93,7 +94,32 @@ test_that("wdpa_clean (country with MULTIPOLYGON protected area)", {
   skip_if_not(curl::has_internet())
   # fetch data
   x <- wdpa_fetch("BOL", wait = TRUE, force = TRUE)
+  y <- suppressWarnings(wdpa_clean(x, erase_overlaps = FALSE,
+                                   geometry_precision = 10000))
+  p1 <- x[x$WDPAID == 555592679, ]
+  p2 <- y[y$WDPAID == 555592679, ]
+  # test that polygons in multipolygon features are retained
+  expect_gt(length(sf::st_cast(p1$geometry, "POLYGON")), 1)
+  expect_equal(length(sf::st_cast(p1$geometry, "POLYGON")),
+               length(sf::st_cast(p2$geometry, "POLYGON")))
+})
+
+test_that("wdpa_clean (country with super invalid MULTIPOLYGON data)", {
+  skip_on_cran()
+  skip_if_not(curl::has_internet())
+  x <- wdpa_fetch("GAB", wait = TRUE, force = TRUE)
   y <- suppressWarnings(wdpa_clean(x, erase_overlaps = TRUE))
-  p <- y[y$WDPAID == 98183, ]
-  expect_equal(length(sf::st_cast(p$geometry, "POLYGON")), 2)
+  expect_is(y, "sf")
+})
+
+test_that("wdpa_clean (geometries in non-geometry column)", {
+  skip_on_cran()
+  skip_if_not(curl::has_internet())
+  x <- wdpa_fetch("GAB", wait = TRUE, force = TRUE)
+  geom_col <- attr(x, "sf_column")
+  attr(x, "sf_column") <- "shape"
+  names(x)[names(x) == geom_col] <- "shape"
+  y <- suppressWarnings(wdpa_clean(x, erase_overlaps = TRUE))
+  expect_is(y, "sf")
+  expect_equal(attr(y, "sf_column"), "geometry")
 })
