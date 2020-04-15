@@ -19,7 +19,7 @@ NULL
 #'
 #' @param geometry_precision \code{numeric} level of precision for processing
 #'   the spatial data (used with \code{\link[sf]{st_set_precision}}). The
-#'   default argument is 1000 (higher values indicate higher precision).
+#'   default argument is 1500 (higher values indicate higher precision).
 #'   This level of precision is generally suitable for analyses at the
 #'   national-scale. For analyses at finer-scale resolutions, please
 #'   consider using a greater value (e.g. 10000).
@@ -50,7 +50,7 @@ NULL
 #'
 #'   \enumerate{
 #'
-#'   \item Repair invalid geometry (using \code{\link[lwgeom]{st_make_valid}}).
+#'   \item Repair invalid geometry (using \code{\link[sf]{st_make_valid}}).
 #'
 #'   \item Exclude protected areas that are not currently implemented
 #'     (i.e. exclude areas without the status \code{"Designated"},
@@ -75,7 +75,7 @@ NULL
 #'     \code{crs} (using \code{\link[sf]{st_transform}}).
 #'
 #'   \item Fix any invalid geometries that have manifested
-#'     (using \code{\link[lwgeom]{st_make_valid}}).
+#'     (using \code{\link[sf]{st_make_valid}}).
 #'
 #'   \item Buffer areas represented as point localities to circular areas
 #'     using their reported spatial extent (using data in the field
@@ -87,14 +87,14 @@ NULL
 #'     \code{\link[lwgeom]{st_snap_to_grid}}).
 #'
 #'   \item Fix any invalid geometries that have manifested
-#'     (using \code{\link[lwgeom]{st_make_valid}}).
+#'     (using \code{\link[sf]{st_make_valid}}).
 #'
 #'   \item Simplify the protected area geometries to reduce computational burden
 #'     (using argument to \code{simplify_tolerance} and
 #'     \code{\link[sf]{st_simplify}}).
 #'
 #'   \item Fix any invalid geometries that have manifested
-#'     (using \code{\link[lwgeom]{st_make_valid}}).
+#'     (using \code{\link[sf]{st_make_valid}}).
 #'
 #'   \item The \code{"MARINE"} field is converted from integer codes
 #'     to descriptive names (i.e. \code{0} = \code{"terrestrial"},
@@ -167,7 +167,7 @@ wdpa_clean <- function(x,
                        "+y_0=0 +datum=WGS84 +ellps=WGS84 +units=m +no_defs"),
                        snap_tolerance = 1,
                        simplify_tolerance = 0,
-                       geometry_precision = 1000,
+                       geometry_precision = 1500,
                        erase_overlaps = TRUE,
                        verbose = interactive()) {
   # check arguments are valid
@@ -184,8 +184,7 @@ wdpa_clean <- function(x,
                           isTRUE(simplify_tolerance >= 0),
                           assertthat::is.count(geometry_precision),
                           assertthat::is.flag(erase_overlaps),
-                          assertthat::is.flag(verbose),
-                          curl::has_internet())
+                          assertthat::is.flag(verbose))
   # check that x is in wgs1984
   assertthat::assert_that(sf::st_crs(x) == sf::st_crs(4326),
    msg = "argument to x is not longitude/latitude (i.e. EPSG:4326)")
@@ -224,7 +223,7 @@ wdpa_clean <- function(x,
   if (verbose) message("repairing geometry: ", cli::symbol$continue, "\r",
                        appendLF = FALSE)
   x <- sf::st_set_precision(x, geometry_precision)
-  x <- lwgeom::st_make_valid(x)
+  x <- sf::st_make_valid(x)
   x <- x[!sf::st_is_empty(x), ]
   x <- extract_polygons_and_points(x)
   if (verbose) {
@@ -249,7 +248,7 @@ wdpa_clean <- function(x,
   if (verbose) message("repairing geometry: ", cli::symbol$continue, "\r",
                        appendLF = FALSE)
   x <- sf::st_set_precision(x, geometry_precision)
-  x <- lwgeom::st_make_valid(x)
+  x <- sf::st_make_valid(x)
   x <- x[!sf::st_is_empty(x), ]
   x <- extract_polygons_and_points(x)
   x <- sf::st_set_precision(x, geometry_precision)
@@ -270,7 +269,7 @@ wdpa_clean <- function(x,
   ## repair geometry again
   if (verbose) message("repairing geometry: ", cli::symbol$continue, "\r",
                        appendLF = FALSE)
-  x <- lwgeom::st_make_valid(x)
+  x <- sf::st_make_valid(x)
   x <- x[!sf::st_is_empty(x), ]
   x <- extract_polygons_and_points(x)
   x <- sf::st_set_precision(x, geometry_precision)
@@ -308,6 +307,12 @@ wdpa_clean <- function(x,
       message("buffering points: ", cli::symbol$tick)
     }
   }
+  ## return empty dataset if no valid non-empty geometries remain
+  if (all(sf::st_is_empty(x))) {
+    if (verbose) message("no valid non-empty geometries remain, return empty ",
+                         "dataset")
+    return(empty_wdpa_dataset(sf::st_crs(x)))
+  }
   ## simplify geometries
   if (simplify_tolerance > 0) {
     if (verbose) message("simplifying geometry: ", cli::symbol$continue,
@@ -327,7 +332,7 @@ wdpa_clean <- function(x,
   if (verbose) message("repairing geometry: ", cli::symbol$continue, "\r",
                        appendLF = FALSE)
   x <- sf::st_set_precision(x, geometry_precision)
-  x <- lwgeom::st_make_valid(x)
+  x <- sf::st_make_valid(x)
   x <- x[!sf::st_is_empty(x), ]
   x <- suppressWarnings(sf::st_collection_extract(x, "POLYGON"))
   x <- sf::st_set_precision(x, geometry_precision)
@@ -351,7 +356,7 @@ wdpa_clean <- function(x,
   if (verbose) message("repairing geometry: ", cli::symbol$continue, "\r",
                        appendLF = FALSE)
   x <- sf::st_set_precision(x, geometry_precision)
-  x <- lwgeom::st_make_valid(x)
+  x <- sf::st_make_valid(x)
   x <- x[!sf::st_is_empty(x), ]
   x <- suppressWarnings(sf::st_collection_extract(x, "POLYGON"))
   x <- sf::st_set_precision(x, geometry_precision)

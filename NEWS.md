@@ -1,3 +1,27 @@
+# wdpar 1.0.2
+
+- CRAN release.
+
+# wdpar 1.0.1.4
+
+- Fix compatibility issues with new `lwgeom` package version 0.2-3 (#24).
+- Increase `lwgeom` and `sf` package version requirements.
+
+# wdpar 1.0.1.3
+
+- The `wdpa_clean` function now returns an empty result (i.e. `sf` object with
+  zero rows) for countries that do not have any protected areas represented by
+  spatially valid non-empty geometries (e.g. Somalia in February 2020, #19).
+
+# wdpar 1.0.1.2
+
+- Increase default precision in `wdpa_clean` function.
+
+# wdpar 1.0.1.1
+
+- Make the `wdpa_clean` function more robust to typology issues (#20).
+- Remove unnecessary internet connection check from `wdpa_clean` (#21).
+
 # wdpar 1.0.1
 
 - CRAN release.

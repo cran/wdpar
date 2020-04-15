@@ -60,23 +60,22 @@ head(mlt_pa_data)
     ## Simple feature collection with 6 features and 28 fields
     ## geometry type:  MULTIPOLYGON
     ## dimension:      XY
-    ## bbox:           xmin: 1382455 ymin: 4280784 xmax: 1399726 ymax: 4299580
-    ## epsg (SRID):    NA
-    ## proj4string:    +proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs
-    ## precision:      1000 
+    ## bbox:           xmin: 1369012 ymin: 4280784 xmax: 1399694 ymax: 4307909
+    ## CRS:            +proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +datum=WGS84 +ellps=WGS84 +units=m +no_defs
+    ## precision:      1500 
     ## # A tibble: 6 x 29
     ##   WDPAID WDPA_PID PA_DEF NAME  ORIG_NAME DESIG DESIG_ENG DESIG_TYPE
     ##    <dbl> <chr>    <chr>  <chr> <chr>     <chr> <chr>     <chr>     
     ## 1 1.94e5 194420   1      Filf… Filfla    Rise… Nature R… National  
-    ## 2 1.94e5 194425   1      Il-G… Il-Gżejj… Rise… Nature R… National  
-    ## 3 5.56e8 5555886… 1      Il-M… Il-Majji… Park… National… National  
-    ## 4 1.75e5 174757   1      Il-Ġ… Il-Ġonna… List… List Of … National  
-    ## 5 1.75e5 174758   1      Bidn… Bidnija,… List… List Of … National  
-    ## 6 1.94e5 194415   1      Il-Ġ… Il-Ġonna… List… List Of … National  
+    ## 2 1.94e5 194423   1      Il-Ġ… Il-Ġebla… Rise… Nature R… National  
+    ## 3 1.94e5 194425   1      Il-G… Il-Gżejj… Rise… Nature R… National  
+    ## 4 5.56e8 5555886… 1      Il-M… Il-Majji… Park… National… National  
+    ## 5 1.75e5 174757   1      Il-Ġ… Il-Ġonna… List… List Of … National  
+    ## 6 1.75e5 174758   1      Bidn… Bidnija,… List… List Of … National  
     ## # … with 21 more variables: IUCN_CAT <chr>, INT_CRIT <chr>, MARINE <chr>,
     ## #   REP_M_AREA <dbl>, REP_AREA <dbl>, NO_TAKE <chr>, NO_TK_AREA <dbl>,
     ## #   STATUS <chr>, STATUS_YR <dbl>, GOV_TYPE <chr>, OWN_TYPE <chr>,
-    ## #   MANG_AUTH <chr>, MANG_PLAN <chr>, VERIF <chr>, METADATAID <dbl>,
+    ## #   MANG_AUTH <chr>, MANG_PLAN <chr>, VERIF <chr>, METADATAID <int>,
     ## #   SUB_LOC <chr>, PARENT_ISO <chr>, ISO3 <chr>, GEOMETRY_TYPE <chr>,
     ## #   AREA_KM2 <dbl>, geometry <MULTIPOLYGON [m]>
 
@@ -108,7 +107,7 @@ Please cite the *wdpar R* package and the World Database on Protected Areas (WDP
     To cite the wdpar package in publications, use:
 
       Hanson JO (2020) wdpar: Interface to the World Database on
-      Protected Areas. R package version 1.0.1.
+      Protected Areas. R package version 1.0.2.
       https://CRAN.R-project.org/package=wdpar
 
       UNEP-WCMC and IUCN (2020) Protected Planet: The World Database
