@@ -1,6 +1,6 @@
 Package: wdpar
 Type: Package
-Version: 1.0.2
+Version: 1.0.3
 Title: Interface to the World Database on Protected Areas
 Description: Fetch and clean data from the World Database on Protected
     Areas (WDPA). Data is obtained from Protected Planet
@@ -16,17 +16,19 @@ Suggests: testthat (>= 2.0.1), knitr (>= 1.2.0), roxygen2 (>= 6.1.1),
         pingr (>= 1.1.2)
 Depends: R(>= 3.5.0), sf(>= 0.9-0)
 License: GPL-3
+Encoding: UTF-8
 LazyData: true
+Language: en-US
 URL: https://prioritizr.github.io/wdpar,
         https://github.com/prioritizr/wdpar
 BugReports: https://github.com/prioritizr/wdpar/issues
 VignetteBuilder: knitr
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Collate: 'internal.R' 'geo.R' 'package.R' 'wdpa_clean.R' 'wdpa_url.R'
         'wdpa_fetch.R' 'wdpa_read.R' 'zzz.R'
 NeedsCompilation: no
-Packaged: 2020-04-15 02:13:43 UTC; jeff
+Packaged: 2020-07-29 22:40:55 UTC; jeff
 Author: Jeffrey O Hanson [aut, cre]
 Maintainer: Jeffrey O Hanson <jeffrey.hanson@uqconnect.edu.au>
 Repository: CRAN
-Date/Publication: 2020-04-15 05:50:02 UTC
+Date/Publication: 2020-07-30 04:20:03 UTC

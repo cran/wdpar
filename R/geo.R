@@ -3,19 +3,19 @@ NULL
 
 #' Erase overlaps
 #'
-#' Erase overlapping geometries in a \code{\link[sf]{sf}} object.
+#' Erase overlapping geometries in a [sf::sf()] object.
 #'
-#' @param x \code{\link[sf]{sf}} object.
+#' @param x [sf::sf()] object.
 #'
-#' @param verbose \code{logical} should progress be reported? Defaults to
-#'   \code{FALSE}.
+#' @param verbose `logical` should progress be reported? Defaults to
+#'   `FALSE`.
 #'
 #' @details This is a more robust---albeit slower---implementation for
-#'   \code{\link{st_difference}} when \code{y} is missing.
+#'   [sf::st_difference()] when `y` is missing.
 #'
-#' @return \code{\link[sf]{sf}} object.
+#' @return [sf::sf()] object.
 #'
-#' @seealso \code{\link[sf]{st_difference}}.
+#' @seealso [sf::st_difference()].
 #'
 #' @examples
 #' # create data
@@ -33,8 +33,10 @@ NULL
 #'
 #' # plot data for visual comparison
 #' par(mfrow = c(1, 2))
-#' plot(sf::st_geometry(x), main = "original", col = "white")
-#' plot(sf::st_geometry(y), main = "no overlaps", col = "white")
+#' plot(sf::st_geometry(x), xlim = c(0, 200), ylim = c(0, 250),
+#'      main = "original", col = "transparent")
+#' plot(sf::st_geometry(y), , xlim = c(0, 200), ylim = c(0, 250),
+#'      main = "no overlaps", col = "transparent")
 #' @export
 st_erase_overlaps <- function(x, verbose = FALSE) {
   # validate arguments
@@ -95,8 +97,6 @@ st_erase_overlaps <- function(x, verbose = FALSE) {
       if (length(d) == 0)
         d[[1]] <- sf::st_polygon()
        d <- suppressWarnings(sf::st_collection_extract(d, "POLYGON"))
-    } else {
-      d <- sf::st_sfc(sf::st_polygon())
     }
     ## if d contains multiple geometries, then union them
     if (length(d) > 1) {
@@ -104,6 +104,10 @@ st_erase_overlaps <- function(x, verbose = FALSE) {
       d <- suppressWarnings(sf::st_collection_extract(
         sf::st_make_valid(sf::st_set_precision(d, precision)),
         "POLYGON"))
+    }
+    ## create empty geometry if empty
+    if (length(d) == 0) {
+      d <- sf::st_sfc(sf::st_polygon())
     }
     ## store geometry
     o[i] <- d[[1]]
