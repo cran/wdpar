@@ -1,3 +1,15 @@
+# wdpar 1.0.4
+
+- CRAN release.
+
+# wdpar 1.0.3.1
+
+- Add example for multiple countries to `wdpa_clean` documentation (#28).
+- Add information on port error to `wdpa_clean` documentation (#29).
+- Update package to work with new version of Protected Planet website (#30).
+- New `wdpa_latest_version` function for determining the latest version of the
+  dataset.
+
 # wdpar 1.0.3
 
 - CRAN release.
@@ -7,7 +19,7 @@
 - Fix "Non-file package-anchored link(s) in documentation object" warnings
   in R-devel checks.
 - Update `wdpa_read` so that it is compatible with the new data format provided
-  by <https://protectedplanet.net>.
+  by <https://www.protectedplanet.net/en>.
 - Update examples for `st_erase_overlaps` so that overlapping geometries are
   clearly shown.
 - Update examples to run with CRAN checks (i.e. `--run-donttest`).

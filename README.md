@@ -7,7 +7,7 @@ wdpar: Interface to the World Database on Protected Areas
 
 ### Overview
 
-The [World Database on Protected Areas (WDPA)](https://www.protectedplanet.net/) is the most comprehensive global dataset of protected areas. It is used to monitor the performance of existing protected areas and pinpoint priority areas for establishing new protected areas. Additionally, this database receives monthly updates from government agencies and non-governmental organizations. However, this dataset is associated with [many issues that need to be addressed prior to analysis](https://www.protectedplanet.net/c/calculating-protected-area-coverage) and the dynamic nature of this dataset means that the entire data cleaning process needs to be repeated after obtaining a new version of the dataset. The *wdpar R* package provides an interface to the [World Database on Protected Areas (WDPA)](https://www.protectedplanet.net/) and functions for cleaning the data following best practices (outlined in [Butchart *et al.* 2015](https://doi.org/10.1111/conl.12158); [Runge *et al.* 2015](https://science.sciencemag.org/content/350/6265/1255); [Protected Planet](https://www.protectedplanet.net/c/calculating-protected-area-coverage)).
+The [World Database on Protected Areas (WDPA)](https://www.protectedplanet.net/en) is the most comprehensive global dataset of protected areas. It is used to monitor the performance of existing protected areas and pinpoint priority areas for establishing new protected areas. Additionally, this database receives monthly updates from government agencies and non-governmental organizations. However, this dataset is associated with [many issues that need to be addressed prior to analysis](https://www.protectedplanet.net/en/resources/calculating-protected-area-coverage) and the dynamic nature of this dataset means that the entire data cleaning process needs to be repeated after obtaining a new version of the dataset. The *wdpar R* package provides an interface to the [World Database on Protected Areas (WDPA)](https://www.protectedplanet.net/en) and functions for cleaning the data following best practices (outlined in [Butchart *et al.* 2015](https://doi.org/10.1111/conl.12158); [Runge *et al.* 2015](https://science.sciencemag.org/content/350/6265/1255); [Protected Planet](https://www.protectedplanet.net/en/resources/calculating-protected-area-coverage)).
 
 ### Installation
 
@@ -36,7 +36,7 @@ library(dplyr)
 library(ggmap)
 ```
 
-Now we will download protected area data for Malta from [Protected Planet](https://www.protectedplanet.net/). We can achieve this by specifying Malta's country name (i.e. `"Malta"`) or Malta's [ISO3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) (i.e. `"MLT"`).
+Now we will download protected area data for Malta from [Protected Planet](https://www.protectedplanet.net/en). We can achieve this by specifying Malta's country name (i.e. `"Malta"`) or Malta's [ISO3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) (i.e. `"MLT"`).
 
 ``` r
 # download protected area data for Malta
@@ -57,13 +57,13 @@ Print preview of the data associated with each protected area.
 head(mlt_pa_data)
 ```
 
-    ## Simple feature collection with 6 features and 30 fields
+    ## Simple feature collection with 6 features and 32 fields
     ## geometry type:  MULTIPOLYGON
     ## dimension:      XY
     ## bbox:           xmin: 1369012 ymin: 4280784 xmax: 1399694 ymax: 4307909
     ## CRS:            +proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +datum=WGS84 +ellps=WGS84 +units=m +no_defs
     ## precision:      1500 
-    ## # A tibble: 6 x 31
+    ## # A tibble: 6 x 33
     ##   WDPAID WDPA_PID PA_DEF NAME  ORIG_NAME DESIG DESIG_ENG DESIG_TYPE IUCN_CAT
     ##    <dbl> <chr>    <chr>  <chr> <chr>     <chr> <chr>     <chr>      <chr>   
     ## 1 1.94e5 194420   1      Filf… Filfla    Rise… Nature R… National   Ia      
@@ -72,12 +72,13 @@ head(mlt_pa_data)
     ## 4 5.56e8 5555886… 1      Il-M… Il-Majji… Park… National… National   II      
     ## 5 1.75e5 174757   1      Il-Ġ… Il-Ġonna… List… List Of … National   III     
     ## 6 1.75e5 174758   1      Bidn… Bidnija,… List… List Of … National   III     
-    ## # … with 22 more variables: INT_CRIT <chr>, MARINE <chr>, REP_M_AREA <dbl>,
+    ## # … with 24 more variables: INT_CRIT <chr>, MARINE <chr>, REP_M_AREA <dbl>,
     ## #   GIS_M_AREA <dbl>, REP_AREA <dbl>, GIS_AREA <dbl>, NO_TAKE <chr>,
     ## #   NO_TK_AREA <dbl>, STATUS <chr>, STATUS_YR <dbl>, GOV_TYPE <chr>,
     ## #   OWN_TYPE <chr>, MANG_AUTH <chr>, MANG_PLAN <chr>, VERIF <chr>,
     ## #   METADATAID <int>, SUB_LOC <chr>, PARENT_ISO <chr>, ISO3 <chr>,
-    ## #   GEOMETRY_TYPE <chr>, AREA_KM2 <dbl>, geometry <MULTIPOLYGON [m]>
+    ## #   SUPP_INFO <chr>, CONS_OBJ <chr>, GEOMETRY_TYPE <chr>, AREA_KM2 <dbl>,
+    ## #   geometry <MULTIPOLYGON [m]>
 
 Finally, after cleaning the data, let's plot a map showing Malta's protected areas and color each area according to its management category ([as defined by the The International Union for Conservation of Nature](https://www.iucn.org/theme/protected-areas/about/protected-area-categories)).
 
@@ -97,7 +98,7 @@ theme(axis.title = element_blank(), legend.position = "bottom")
 
 <img src="man/figures/README-readme-map-1.png" width="50%" style="display: block; margin: auto;" />
 
-If you need to calculate protected area coverage statistics for a country, please note that you will need to manually clip the cleaned protected area data to the countries' coastline and its Exclusive Economic Zone (EEZ) to obtain accurate results (see [official data cleaning guidelines](https://www.protectedplanet.net/c/calculating-protected-area-coverage)). This step is not performed by the *wdpar R* package because there is no single "best" coastline and Exclusive Economic Zone (EEZ) dataset, since the "best" dataset for any given project depends on the level of required precision and available computational resources. For more examples---including an example of clipping the cleaned data to a coastline---please refer to the [package vignette](https://prioritizr.github.io/wdpar/articles/wdpar.html).
+If you need to calculate protected area coverage statistics for a country, please note that you will need to manually clip the cleaned protected area data to the countries' coastline and its Exclusive Economic Zone (EEZ) to obtain accurate results (see [official data cleaning guidelines](https://www.protectedplanet.net/en/resources/calculating-protected-area-coverage)). This step is not performed by the *wdpar R* package because there is no single "best" coastline and Exclusive Economic Zone (EEZ) dataset, since the "best" dataset for any given project depends on the level of required precision and available computational resources. For more examples---including an example of clipping the cleaned data to a coastline---please refer to the [package vignette](https://prioritizr.github.io/wdpar/articles/wdpar.html).
 
 ### Citation
 
@@ -107,7 +108,7 @@ Please cite the *wdpar R* package and the World Database on Protected Areas (WDP
     To cite the wdpar package in publications, use:
 
       Hanson JO (2020) wdpar: Interface to the World Database on Protected
-      Areas. R package version 1.0.3.
+      Areas. R package version 1.0.4.
       https://CRAN.R-project.org/package=wdpar
 
       UNEP-WCMC and IUCN (2020) Protected Planet: The World Database on
