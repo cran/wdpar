@@ -3,6 +3,7 @@ context("wdpa_read")
 test_that("wdpa_read (without point data)", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
+  skip_on_github_workflow("Windows")
   # try to find download url
   download_url <- wdpa_url("LIE", wait = TRUE)
   # path to save file zipfile with data
@@ -21,6 +22,7 @@ test_that("wdpa_read (without point data)", {
 test_that("wdpa_read (with point data)", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
+  skip_on_github_workflow("Windows")
   # try to find download url
   download_url <- wdpa_url("MHL", wait = TRUE)
   # path to save file zipfile with data

@@ -13,6 +13,7 @@ wdpa_column_names <- c("WDPAID", "WDPA_PID", "PA_DEF", "NAME", "ORIG_NAME",
 test_that("wdpa_clean (single country with eez)", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
+  skip_on_github_workflow("Windows")
   # fetch data
   x <- wdpa_clean(suppressWarnings(wdpa_fetch("MHL", wait = TRUE,
                                               force = TRUE)))
@@ -30,6 +31,7 @@ test_that("wdpa_clean (single country with eez)", {
 test_that("wdpa_clean (single country without eez)", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
+  skip_on_github_workflow("Windows")
   # fetch data
   x <- wdpa_clean(suppressWarnings(wdpa_fetch("LIE", wait = TRUE,
                                               force = TRUE)),
@@ -47,6 +49,7 @@ test_that("wdpa_clean (single country without eez)", {
 test_that("wdpa_clean (single country with simplification)", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
+  skip_on_github_workflow("Windows")
   # fetch data
   x <- wdpa_clean(suppressWarnings(wdpa_fetch("MHL", force = TRUE,
                                               wait = TRUE)),
@@ -64,6 +67,7 @@ test_that("wdpa_clean (single country with simplification)", {
 test_that("wdpa_clean (single country without overlap removal)", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
+  skip_on_github_workflow("Windows")
   # fetch data
   x <- wdpa_clean(suppressWarnings(wdpa_fetch("BDI", wait = TRUE,
                                               force = TRUE)),
@@ -81,6 +85,7 @@ test_that("wdpa_clean (single country without overlap removal)", {
 test_that("wdpa_clean (country with MULTIPOINT protected areas)", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
+  skip_on_github_workflow("Windows")
   # fetch data
   x <- wdpa_fetch("BOL", wait = TRUE, force = TRUE)
   x_points <- vapply(x$geometry, inherits, logical(1),
@@ -93,6 +98,7 @@ test_that("wdpa_clean (country with MULTIPOINT protected areas)", {
 test_that("wdpa_clean (country with MULTIPOLYGON protected area)", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
+  skip_on_github_workflow("Windows")
   # fetch data
   x <- wdpa_fetch("BOL", wait = TRUE, force = TRUE)
   y <- suppressWarnings(wdpa_clean(x, erase_overlaps = FALSE,
@@ -107,6 +113,7 @@ test_that("wdpa_clean (country with MULTIPOLYGON protected area)", {
 test_that("wdpa_clean (country with super invalid MULTIPOLYGON data)", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
+  skip_on_github_workflow("Windows")
   x <- wdpa_fetch("GAB", wait = TRUE, force = TRUE)
   y <- suppressWarnings(wdpa_clean(x, erase_overlaps = TRUE))
   expect_is(y, "sf")
@@ -115,6 +122,7 @@ test_that("wdpa_clean (country with super invalid MULTIPOLYGON data)", {
 test_that("wdpa_clean (geometries in non-geometry column)", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
+  skip_on_github_workflow("Windows")
   x <- wdpa_fetch("GAB", wait = TRUE, force = TRUE)
   geom_col <- attr(x, "sf_column")
   attr(x, "sf_column") <- "shape"
@@ -127,6 +135,7 @@ test_that("wdpa_clean (geometries in non-geometry column)", {
 test_that("wdpa_clean (single country with no valid non-empty geometries)", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
+  skip_on_github_workflow("Windows")
   x <-
     suppressWarnings(wdpa_clean(wdpa_fetch("SOM", wait = TRUE, force = TRUE)))
   y <- wdpa_clean(wdpa_fetch("MHL", wait = TRUE, force = TRUE))
