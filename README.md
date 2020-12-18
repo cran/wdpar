@@ -3,7 +3,7 @@
 wdpar: Interface to the World Database on Protected Areas
 ---------------------------------------------------------
 
-[![lifecycle](https://img.shields.io/badge/Lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable) [![R-CMD-check-Ubuntu](https://github.com/prioritizr/wdpar/workflows/Ubuntu/badge.svg)](https://github.com/prioritizr/wdpar/actions) [![R-CMD-check-Windows](https://github.com/prioritizr/wdpar/workflows/Windows/badge.svg)](https://github.com/prioritizr/wdpar/actions) [![R-CMD-check-Mac-OSX](https://github.com/prioritizr/wdpar/workflows/Mac%20OSX/badge.svg)](https://github.com/prioritizr/wdpar/actions) [![Coverage Status](https://codecov.io/github/prioritizr/wdpar/coverage.svg?branch=master)](https://codecov.io/github/prioritizr/wdpar?branch=master) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/wdpar)](https://CRAN.R-project.org/package=wdpar)
+[![lifecycle](https://img.shields.io/badge/Lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable) [![R-CMD-check-Ubuntu](https://img.shields.io/github/workflow/status/prioritizr/wdpar/Ubuntu/master.svg?label=Ubuntu)](https://github.com/prioritizr/wdpar/actions) [![R-CMD-check-Windows](https://img.shields.io/github/workflow/status/prioritizr/wdpar/Windows/master.svg?label=Windows)](https://github.com/prioritizr/wdpar/actions) [![R-CMD-check-Mac-OSX](https://img.shields.io/github/workflow/status/prioritizr/wdpar/Mac%20OSX/master.svg?label=Mac%20OSX)](https://github.com/prioritizr/wdpar/actions) [![Coverage Status](https://codecov.io/github/prioritizr/wdpar/coverage.svg?branch=master)](https://codecov.io/github/prioritizr/wdpar?branch=master) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/wdpar)](https://CRAN.R-project.org/package=wdpar)
 
 ### Overview
 
@@ -108,7 +108,7 @@ Please cite the *wdpar R* package and the World Database on Protected Areas (WDP
     To cite the wdpar package in publications, use:
 
       Hanson JO (2020) wdpar: Interface to the World Database on Protected
-      Areas. R package version 1.0.5.
+      Areas. R package version 1.0.6.
       https://CRAN.R-project.org/package=wdpar
 
       UNEP-WCMC and IUCN (2020) Protected Planet: The World Database on

@@ -1,3 +1,17 @@
+# wdpar 1.0.6
+
+- CRAN release.
+
+# wdpar 1.0.5.2
+
+- Update `wdpa_read` function to be compatible with changes to global
+  dataset (#31).
+
+# wdpar 1.0.5.1
+
+- Update `wdpa_fetch` function to be compatible with changes to Protected
+  Planet website for downloading global dataset.
+
 # wdpar 1.0.5
 
 - CRAN release.

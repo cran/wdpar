@@ -7,9 +7,9 @@ NULL
 #' This is a character identifier representing the month and year (e.g.
 #' `Sep2020`) the data were released.
 #'
-#' @details The version number can be determined based on the file name for
-#'  the global dataset (currently available at:
-#'  <https://wcmc.io/wdpa_current_release>)
+#' @details The version number is determined using a web address where the
+#'   global dataset is available. For specific details, please refer to
+#'   the source code for this function.
 #'
 #' @return `character` version of the dataset.
 #'
@@ -22,7 +22,7 @@ NULL
 #' @export
 wdpa_latest_version <- function() {
   assertthat::assert_that(curl::has_internet())
-  download_url <- wdpa_url("global")
+  download_url <- "http://wcmc.io/wdpa_current_release"
   file_name <- basename(httr::HEAD(download_url)$url)[[1]]
   wdpa_version(file_name)
 }
