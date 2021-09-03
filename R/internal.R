@@ -36,19 +36,12 @@ country_code <- function(x) {
 #' Find the file in a folder which has the most recent version of the WDPA data
 #' set in it.
 #'
-#' @param x `character` Country for desired data. This argument
-#'   can be the name of the country (e.g. `"Liechtenstein"`) or the
-#'   ISO-3 code for the country (e.g. `"LIE"`). This argument can also
-#'   be set to `"global"` to obtain file path for the global dataset.
-#'
-#' @param download_dir `character` directory to which the data will be
-#'  downloaded. Defaults to a persistent data directory
-#'  (`rappdirs::user_data_dir("wdpar")`).
+#' @inheritParams wdpa_fetch
 #'
 #' @return `character` file path.
 #'
 #' @noRd
-wdpa_file <- function(x, download_dir = rappdirs::user_data_dir("wdpar")) {
+wdpa_file <- function(x, download_dir = tempfile()) {
   # validate arguments
   assertthat::assert_that(assertthat::is.string(x),
                           assertthat::is.dir(download_dir))
@@ -79,7 +72,7 @@ wdpa_file <- function(x, download_dir = rappdirs::user_data_dir("wdpar")) {
 #'
 #' Extract polygons and points from a [sf::sf()] object.
 #'
-#' @param x  [sf::sf()] object.
+#' @param x [sf::sf()] object.
 #'
 #' @return [sf::sf()] object.
 #'
@@ -101,7 +94,7 @@ extract_polygons_and_points <- function(x) {
 
 # define dummy function to avoid CRAN notes for dependencies
 import_deps <- function() {
-  x <- rappdirs::user_data_dir("wdpar")
+  x <- rappdirs::user_data_dir
   x <- sp::spTransform
 }
 
@@ -235,11 +228,34 @@ read_sf_n <- function(dsn, layer = NULL, n = NULL) {
     query <- NA
   }
   # import data
-  out <- sf::read_sf(dsn = dsn, layer = layer, query = query)
+  out <- sf::read_sf(dsn = dsn, query = query)
   if (!is.null(n)) {
     if (nrow(out) > n) {
-      out <- out[out, ]
+      out <- out[seq_len(n), ]
     }
   }
+  # force sf_geometry column to be called "geometry"
+  if (!"geometry" %in% names(out)) {
+    old_name <- attr(out, "sf_column")
+    names(out)[names(out) == old_name] <- "geometry"
+    attr(out, "sf_column") <- "geometry"
+  }
+  # return result
   out
+}
+
+#' Download file
+#'
+#' @param url `character` URL for downloading file.
+#'
+#' @param path `character` path to save data.
+#'
+#' @param quiet `logical` should downloading information be suppressed?
+#'
+#' @return Invisible `logical` indicating success.
+#'
+#' @noRd
+download_file <- function(url, path, quiet = TRUE) {
+  res <- curl::curl_download(url, path, quiet = quiet)
+  invisible(TRUE)
 }

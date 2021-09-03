@@ -47,13 +47,14 @@ test_that("global data", {
   skip_if_not(curl::has_internet())
   skip_if_not_installed("pingr")
   skip_on_github_workflow("Windows")
+  skip_on_github_workflow("Mac OSX")
   skip_if(
     (mean(pingr::ping("www.google.com", count = 10)) > 10) &&
     !identical(Sys.getenv("CI"), "true"))
   # download data
   url <- suppressWarnings(wdpa_url("global", wait = TRUE))
   path <- file.path(tempdir(), "WDPA_WDOECM_Dec2020_Public.gdb.zip")
-  curl::curl_download(url, path)
+  download_file(url, path)
   # import data
   x <- suppressWarnings(wdpa_read(path, n = 5))
   # tests

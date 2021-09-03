@@ -11,6 +11,21 @@ NULL
 #'   coordinate reference system. Defaults to World Behrmann
 #'  (*ESRI:54017*).
 #'
+#' @param exclude_unesco `logical` should UNESCO Biosphere Reserves be excluded?
+#'   Defaults to `TRUE`.
+#'
+#' @param retain_status `character` vector containing the statuses for
+#'   protected areas that should be retained during the cleaning process.
+#'   Available statuses include:
+#'   `"Proposed"`, `"Inscribed"`, `"Adopted"`, `"Designated"`, and
+#'   `"Established"`.
+#'   Additionally, a `NULL` argument can be specified to ensure that no
+#'   protected areas are excluded according to their status.
+#'   The default argument is a `character` vector containing `"Designated"`,
+#'   `"Inscribed"`, and `"Established"`.
+#'   This default argument ensures that protected areas that are not currently
+#'   implemented are excluded.
+#'
 #' @param snap_tolerance `numeric` tolerance for snapping geometry to a
 #'   grid for resolving invalid geometries. Defaults to 1 meter.
 #'
@@ -52,12 +67,18 @@ NULL
 #'
 #'   \item Repair invalid geometry (using [sf::st_make_valid()]).
 #'
-#'   \item Exclude protected areas that are not currently implemented
-#'     (i.e. exclude areas without the status `"Designated"`,
-#'     `"Inscribed"`, `"Established"`).
+#'   \item Exclude protected areas according to their status (i.e.
+#'     `"STATUS"` field). Specifically, protected areas that have
+#'     a status not specified in the argument to `retain_status` are excluded.
+#'     By default, only protected areas that have a
+#'     `"Designated"`, `"Inscribed"`, or `"Established"` status are retained.
+#'    This means that the default behavior is to exclude protected that
+#'    are not currently implemented.
 #'
 #'   \item Exclude United Nations Educational, Scientific and Cultural
 #'     Organization (UNESCO) Biosphere Reserves (Coetzer *et al.* 2014).
+#'     This step is only performed if the argument to `exclude_unesco` is
+#'     `TRUE`.
 #'
 #'   \item Create a field (`"GEOMETRY_TYPE"`) indicating if areas are
 #'     represented as point localities (`"POINT"`) or as polygons
@@ -165,12 +186,16 @@ NULL
 wdpa_clean <- function(x,
                        crs = paste("+proj=cea +lon_0=0 +lat_ts=30 +x_0=0",
                        "+y_0=0 +datum=WGS84 +ellps=WGS84 +units=m +no_defs"),
+                       exclude_unesco = TRUE,
+                       retain_status =
+                        c("Designated", "Inscribed", "Established"),
                        snap_tolerance = 1,
                        simplify_tolerance = 0,
                        geometry_precision = 1500,
                        erase_overlaps = TRUE,
                        verbose = interactive()) {
   # check arguments are valid
+  ## simple arguments
   assertthat::assert_that(inherits(x, "sf"),
                           nrow(x) > 0,
                           all(assertthat::has_name(x, c("ISO3", "STATUS",
@@ -184,26 +209,72 @@ wdpa_clean <- function(x,
                           isTRUE(simplify_tolerance >= 0),
                           assertthat::is.count(geometry_precision),
                           assertthat::is.flag(erase_overlaps),
+                          assertthat::is.flag(exclude_unesco),
                           assertthat::is.flag(verbose))
-  # check that x is in wgs1984
+  ## retain status
+  assertthat::assert_that(inherits(retain_status, c("character", "NULL")))
+  if (is.character(retain_status)) {
+    assertthat::assert_that(
+      assertthat::noNA(retain_status),
+      all(retain_status %in% c(
+        "Proposed", "Inscribed", "Adopted", "Designated", "Established")))
+  }
+  ## check that x is in wgs1984
   assertthat::assert_that(sf::st_crs(x) == sf::st_crs(4326),
    msg = "argument to x is not longitude/latitude (i.e. EPSG:4326)")
+
   # clean data
-  ## remove areas that are not currently in action
-  if (verbose) message("removing areas that are not implemented: ",
-                       cli::symbol$continue, "\r", appendLF = FALSE)
-  x <- x[x$STATUS %in% c("Designated", "Inscribed", "Established"), ]
-  if (verbose) {
-    utils::flush.console()
-    message("removing areas that are not implemented: ", cli::symbol$tick)
+  ## exclude areas based on status
+  if (is.null(retain_status)) {
+    if (verbose) {
+      message("retaining all areas (i.e. not removing areas based on status): ",
+              "\r", appendLF = FALSE)
+      utils::flush.console()
+      message("retaining all areas (i.e. not removing areas based on status): ",
+              cli::symbol$tick)
+    }
+  } else {
+    ### determine if defaults are used
+    default_status <- c("Designated", "Inscribed", "Established")
+    exclude_not_implemented <-
+      identical(sort(default_status), sort(retain_status))
+    ### prepare message
+    if (exclude_not_implemented) {
+      msg <- paste0(
+        "retaining only areas with specified statuses ",
+        " (i.e. removing areas that are not implemented): ")
+    } else {
+      msg <- paste0(
+        "retaining only areas with specified statuses ",
+        " (i.e. retaining ",
+        paste(paste0("\"", retain_status, "\""), collapse = ","), "): ")
+    }
+    if (verbose) {
+      message(msg, cli::symbol$continue, "\r", appendLF = FALSE)
+    }
+    x <- x[which(x$STATUS %in% retain_status), ]
+    if (verbose) {
+      utils::flush.console()
+      message(msg, cli::symbol$tick)
+    }
   }
-  ## remove UNESCO sites
-  if (verbose) message("removing UNESCO reserves: ", cli::symbol$continue, "\r",
-                       appendLF = FALSE)
-  x <- x[x$DESIG_ENG != "UNESCO-MAB Biosphere Reserve", ]
-  if (verbose) {
-    utils::flush.console()
-    message("removing UNESCO reserves: ", cli::symbol$tick)
+  ## remove UNESCO sites if needed
+  if (exclude_unesco) {
+    if (verbose)
+      message("removing UNESCO Biosphere Reserves: ", cli::symbol$continue,
+              "\r", appendLF = FALSE)
+    x <- x[x$DESIG_ENG != "UNESCO-MAB Biosphere Reserve", ]
+    if (verbose) {
+      utils::flush.console()
+      message("removing UNESCO Biosphere Reserves: ", cli::symbol$tick)
+    }
+  } else {
+    if (verbose) {
+      message("retaining UNESCO Biosphere Reserves: ", cli::symbol$continue,
+              "\r", appendLF = FALSE)
+      utils::flush.console()
+      message("retaining UNESCO Biosphere Reserves: ", cli::symbol$tick)
+    }
   }
   ## assign column indicating geometry type
   is_point <- vapply(sf::st_geometry(x), inherits, logical(1),

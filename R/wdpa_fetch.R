@@ -7,6 +7,8 @@ NULL
 #' (available at <https://www.protectedplanet.net/en>) and import it.
 #' Note that data are downloaded assuming non-commercial use.
 #'
+#' @inheritParams wdpa_read
+#'
 #' @param x `character` country for which to download data. This argument
 #'   can be the name of the country (e.g. `"Liechtenstein"`) or the
 #'   ISO-3 code for the country (e.g. `"LIE"`). This argument can also
@@ -19,8 +21,9 @@ NULL
 #'   will be returned. Defaults to `FALSE`.
 #'
 #' @param download_dir `character` folder path to download the data.
-#'  Defaults to a persistent data directory
-#'  (`rappdirs::user_data_dir("wdpar")`).
+#'  Defaults to a temporary directory. To avoid downloading the
+#'  same dataset multiple times, it is recommended to use a persistent
+#'  directory (e.g. `rappdirs::user_data_dir("wdpar")`; see Examples below).
 #'
 #' @param force_download `logical` if the data has previously been
 #'   downloaded and is available at argument to `download_dir`, should a
@@ -55,14 +58,20 @@ NULL
 #' # fetch data for Liechtenstein
 #' lie_raw_data <- wdpa_fetch("Liechtenstein", wait = TRUE)
 #'
-#' # fetch data for Liechtenstein using the ISO3 code
-#' lie_raw_data <- wdpa_fetch("LIE")
-#'
 #' # print data
 #' print(lie_raw_data)
 #'
 #' # plot data
 #' plot(lie_raw_data)
+#'
+#' # fetch data for Liechtenstein using the ISO3 code
+#' lie_raw_data <- wdpa_fetch("LIE", wait = TRUE)
+#'
+#' # since data are saved in a temporary directory by default,
+#' # a persistent directory can be specified to avoid having to download the
+#' # same dataset every time the R session is restarted
+#' lie_raw_data <- wdpa_fetch("LIE", wait = TRUE,
+#'                            download_dir = rappdirs::user_data_dir("wdpar"))
 #'
 #' # data for multiple countries can be downloaded separately and combined,
 #' # this is useful to avoid having to download the global dataset
@@ -84,8 +93,10 @@ NULL
 #' }
 #' @export
 wdpa_fetch <- function(x, wait = FALSE,
-                       download_dir = rappdirs::user_data_dir("wdpar"),
-                       force_download = FALSE, verbose = interactive()) {
+                       download_dir = tempdir(),
+                       force_download = FALSE,
+                       n = NULL,
+                       verbose = interactive()) {
   # check that arguments are valid
   ## check that classes are correct
   dir.create(download_dir, showWarnings = FALSE, recursive = TRUE)
@@ -119,7 +130,7 @@ wdpa_fetch <- function(x, wait = FALSE,
     file_path <- file.path(download_dir, file_name)
     ## download the data
     if (!file.exists(file_path) || force_download) {
-      curl::curl_download(download_url, file_path, quiet = !verbose)
+      download_file(download_url, file_path, quiet = !verbose)
       if (verbose)
         message("\n")
     }
@@ -144,5 +155,5 @@ wdpa_fetch <- function(x, wait = FALSE,
     }
   }
   # import the data
-  wdpa_read(file_path)
+  wdpa_read(file_path, n)
 }

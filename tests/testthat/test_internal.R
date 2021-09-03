@@ -81,7 +81,7 @@ test_that("wdpa_url (country)", {
   # verify that downloading the url yields a zipped shapefile
   f1 <- tempfile(fileext = ".zip")
   f2 <- file.path(tempdir(), basename(tempfile()))
-  curl::curl_download(x, f1)
+  download_file(x, f1)
   expect_true(file.exists(f1))
   unzip(f1, exdir = f2)
   zip_path <- dir(f2, "^.*\\.zip$", recursive = TRUE, full.names = TRUE)
@@ -97,6 +97,7 @@ test_that("wdpa_url (global)", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
   skip_on_github_workflow("Windows")
+  skip_on_github_workflow("Mac OSX")
   # verify that wdpa_url yields a result
   x <- suppressWarnings(wdpa_url("global", wait = TRUE))
   expect_is(x, "character")
@@ -105,7 +106,7 @@ test_that("wdpa_url (global)", {
          "slow internet connection detected")
   f1 <- tempfile(fileext = ".zip")
   f2 <- file.path(tempdir(), basename(tempfile()))
-  curl::curl_download(x, f1)
+  download_file(x, f1)
   expect_true(file.exists(f1))
   unzip(f1, exdir = f2)
   expect_gt(length(dir(f2, "^.*\\.gdb$", include.dirs = TRUE,
@@ -137,7 +138,7 @@ test_that("read_sf_n (n = NULL)", {
 
 test_that("read_sf_n (n = 5)", {
   path <- system.file("shape/nc.shp", package = "sf")
-  x <- sf::read_sf(path, query = "SELECT * FROM \"nc\" WHERE FID <= 5")
+  x <- sf::read_sf(path)[seq_len(5), ]
   y <- read_sf_n(path, n = 5)
   expect_identical(x, y)
 })
