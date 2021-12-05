@@ -2,14 +2,16 @@
 % Please edit documentation in R/wdpa_fetch.R
 \name{wdpa_fetch}
 \alias{wdpa_fetch}
-\title{Fetch data from the World Database on Protected Areas}
+\title{Fetch data}
 \usage{
 wdpa_fetch(
   x,
   wait = FALSE,
   download_dir = tempdir(),
   force_download = FALSE,
+  check_version = TRUE,
   n = NULL,
+  page_wait = 2,
   verbose = interactive()
 )
 }
@@ -34,8 +36,26 @@ directory (e.g. \code{rappdirs::user_data_dir("wdpar")}; see Examples below).}
 downloaded and is available at argument to \code{download_dir}, should a
 fresh copy be downloaded? Defaults to \code{FALSE}.}
 
+\item{check_version}{\code{logical} if the data are being imported from
+from the argument to \code{download_dir}, should the data be checked to see
+if the version number matches the latest version available online?
+Defaults to \code{TRUE}.}
+
 \item{n}{\code{integer} number of records to import per data source.
 Defaults to \code{NULL} such that all data are imported.}
+
+\item{page_wait}{\code{numeric} number of seconds to wait for web pages
+to load when finding the download URL on
+\href{https://www.protectedplanet.net/en}{Protected Planet}.
+Defaults to 2.
+Since the process of finding a download URL requires
+navigating through multiple web pages,
+the default argument means that the function will take at least 8
+seconds to complete.
+Users on slow internet connections may experience issues
+with the default argument (e.g. resulting in an error
+containing the message \code{Error: Summary: NoSuchElement}).
+To avoid this, users can try specifying a greater value (e.g. 5 seconds).}
 
 \item{verbose}{\code{logical} should a progress on downloading data be
 reported? Defaults to \code{TRUE} in an interactive session, otherwise
@@ -45,24 +65,44 @@ reported? Defaults to \code{TRUE} in an interactive session, otherwise
 \code{\link[sf:sf]{sf::sf()}} object.
 }
 \description{
-Download data from the World Database on Protected Areas (WDPA)
-(available at \url{https://www.protectedplanet.net/en}) and import it.
-Note that data are downloaded assuming non-commercial use.
+Fetch data from \href{https://www.protectedplanet.net/en}{Protected Planet}.
+Specifically, data are downloaded from the
+World Database on Protected Areas
+(WDPA) and the World Database on Other Effective Area-Based Conservation
+Measures (WDOECM).
+\strong{Note that data are downloaded assuming non-commercial use.}
 }
 \details{
-This function will download the specified protected area
-data and return it. \strong{It is strongly recommended that the data be
-cleaned prior to analysis}. Check out the
-\code{\link[=wdpa_clean]{wdpa_clean()}} function to clean the data according to standard
-practices. For information on this database,
-prefer refer to the official manual
-(\url{https://www.protectedplanet.net/en/resources/wdpa-manual}).
+This function will check to see if the specified data
+have previously been downloaded, download the data if needed,
+and import the data.
+After importing the data, it is strongly recommended to clean the data
+prior to analysis (see \code{\link[=wdpa_clean]{wdpa_clean()}}).
+}
+\section{Data source}{
 
-Please note that this function will sometimes return the error
-\verb{PhantomJS signals port = 4567 is already in use}. This can occur
-when you have previously run the function and terminated it early.
+The \code{PA_DEF} column indicates the data source for individual
+areas and sites that comprise the imported dataset.
+Specifically, data obtained through the World Database on Protected Areas
+(WDPA) are indicated with a value of \code{1} in the \code{PA_DEF} column.
+Additionally, data obtained through the World Database on Other Effective
+Area-Based Conservation Measures (WDOECM) are indicated with a value of \code{0}
+in the \code{PA_DEF} column.
+For more details on data conventions, please consult the official manual
+(UNEP-WCMC 2019).
+}
+
+\section{Troubleshooting}{
+
+This function will sometimes return the error message
+\verb{PhantomJS signals port = 4567 is already in use}.
+This error message can occur when you have previously run the function and
+it threw an error, or it terminated early.
+It can also occur when attempting to run the the function in multiple
+sessions on the same computer.
 To address this issue, you will need to restart your computer.
 }
+
 \examples{
 \dontrun{
 # fetch data for Liechtenstein
@@ -102,9 +142,12 @@ mult_dat <- st_as_sf(as_tibble(bind_rows(mult_data)))
 print(mult_dat)
 }
 }
+\references{
+UNEP-WCMC (2019). User Manual for the World Database on Protected Areas and
+world database on other effective area-based conservation measures: 1.6.
+UNEP-WCMC: Cambridge, UK. Available at: \url{https://wcmc.io/WDPA_Manual}.
+}
 \seealso{
 \code{\link[=wdpa_clean]{wdpa_clean()}}, \code{\link[=wdpa_read]{wdpa_read()}},
-\code{\link[=wdpa_url]{wdpa_url()}}, \code{\link[countrycode:countrycode]{countrycode::countrycode()}},
-\url{https://www.protectedplanet.net/en},
-\url{https://www.protectedplanet.net/en/resources/wdpa-manual}.
+\code{\link[=wdpa_url]{wdpa_url()}}, \code{\link[countrycode:countrycode]{countrycode::countrycode()}}.
 }

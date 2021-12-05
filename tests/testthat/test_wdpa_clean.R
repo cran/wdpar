@@ -12,13 +12,16 @@ wdpa_column_names <- c("WDPAID", "WDPA_PID", "PA_DEF", "NAME", "ORIG_NAME",
 
 default_retain_status <- c("Designated", "Inscribed", "Established")
 
-test_that("wdpa_clean (single country with eez)", {
+test_that("single country with eez", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
   skip_on_github_workflow("Windows")
   # fetch data
-  x <- wdpa_clean(suppressWarnings(wdpa_fetch(
-    "MHL", wait = TRUE, force = TRUE, verbose = TRUE)))
+  x <- wdpa_clean(
+    suppressWarnings(
+      wdpa_fetch("MHL", wait = TRUE, verbose = TRUE, check_version = FALSE)
+    )
+  )
   # run tests
   expect_is(x, "sf")
   expect_true(all(names(x) %in% wdpa_column_names))
@@ -29,16 +32,18 @@ test_that("wdpa_clean (single country with eez)", {
   expect_equal(sum(is.na(x$AREA_KM2)), 0)
   expect_equal(sum(sf::st_overlaps(x, sparse = FALSE)), 0)
   expect_true(all(x$STATUS %in% default_retain_status))
+  expect_true(all(x$PA_DEF %in% c("PA", "OECM")))
 })
 
-test_that("wdpa_clean (single country without eez)", {
+test_that("single country without eez", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
   skip_on_github_workflow("Windows")
   # fetch data
-  x <- wdpa_clean(suppressWarnings(wdpa_fetch("LIE", wait = TRUE,
-                                              force = TRUE)),
-                  geometry_precision = 1000)
+  x <- wdpa_clean(
+    suppressWarnings(wdpa_fetch("LIE", wait = TRUE, check_version = FALSE)),
+    verbose = TRUE, geometry_precision = 1000
+  )
   # run tests
   expect_gt(nrow(x), 0)
   expect_true(all(wdpa_column_names %in% names(x)))
@@ -50,14 +55,15 @@ test_that("wdpa_clean (single country without eez)", {
   expect_true(all(x$STATUS %in% default_retain_status))
 })
 
-test_that("wdpa_clean (single country with simplification)", {
+test_that("single country with simplification", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
   skip_on_github_workflow("Windows")
   # fetch data
-  x <- wdpa_clean(suppressWarnings(wdpa_fetch("MHL", force = TRUE,
-                                              wait = TRUE)),
-                  simplify_tolerance = 100)
+  x <- wdpa_clean(
+    suppressWarnings(wdpa_fetch("MHL", wait = TRUE, check_version = FALSE)),
+    simplify_tolerance = 100
+  )
   # run tests
   expect_is(x, "sf")
   expect_true(all(wdpa_column_names %in% names(x)))
@@ -69,14 +75,15 @@ test_that("wdpa_clean (single country with simplification)", {
   expect_true(all(x$STATUS %in% default_retain_status))
 })
 
-test_that("wdpa_clean (single country without overlap removal)", {
+test_that("single country without overlap removal", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
   skip_on_github_workflow("Windows")
   # fetch data
-  x <- wdpa_clean(suppressWarnings(wdpa_fetch("BDI", wait = TRUE,
-                                              force = TRUE)),
-                  erase_overlaps = FALSE)
+  x <- wdpa_clean(
+    suppressWarnings(wdpa_fetch("BDI", wait = TRUE, check_version = FALSE)),
+    erase_overlaps = FALSE
+  )
   # run tests
   expect_gt(nrow(x), 0)
   expect_true(all(wdpa_column_names %in% names(x)))
@@ -88,12 +95,12 @@ test_that("wdpa_clean (single country without overlap removal)", {
   expect_true(all(x$STATUS %in% default_retain_status))
 })
 
-test_that("wdpa_clean (country with MULTIPOINT protected areas)", {
+test_that("country with MULTIPOINT protected areas", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
   skip_on_github_workflow("Windows")
   # fetch data
-  x <- wdpa_fetch("BOL", wait = TRUE, force = TRUE)
+  x <- wdpa_fetch("BOL", wait = TRUE, check_version = FALSE)
   x_points <- vapply(x$geometry, inherits, logical(1),
                      c("POINT", "MULTIPOINT"))
   x <- x[c(which(x_points), 15), , drop = FALSE]
@@ -102,12 +109,12 @@ test_that("wdpa_clean (country with MULTIPOINT protected areas)", {
   expect_true(all(y$STATUS %in% default_retain_status))
 })
 
-test_that("wdpa_clean (country with MULTIPOLYGON protected area)", {
+test_that("country with MULTIPOLYGON protected area", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
   skip_on_github_workflow("Windows")
   # fetch data
-  x <- wdpa_fetch("BOL", wait = TRUE, force = TRUE)
+  x <- wdpa_fetch("BOL", wait = TRUE, check_version = FALSE)
   y <- suppressWarnings(wdpa_clean(x, erase_overlaps = FALSE,
                                    geometry_precision = 10000))
   p1 <- x[x$WDPAID == 555592679, ]
@@ -118,21 +125,21 @@ test_that("wdpa_clean (country with MULTIPOLYGON protected area)", {
   expect_true(all(y$STATUS %in% default_retain_status))
 })
 
-test_that("wdpa_clean (country with super invalid MULTIPOLYGON data)", {
+test_that("country with super invalid MULTIPOLYGON data", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
   skip_on_github_workflow("Windows")
-  x <- wdpa_fetch("GAB", wait = TRUE, force = TRUE)
+  x <- wdpa_fetch("GAB", wait = TRUE, check_version = FALSE)
   y <- suppressWarnings(wdpa_clean(x, erase_overlaps = TRUE))
   expect_is(y, "sf")
   expect_true(all(y$STATUS %in% default_retain_status))
 })
 
-test_that("wdpa_clean (geometries in non-geometry column)", {
+test_that("geometries in non-geometry column", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
   skip_on_github_workflow("Windows")
-  x <- wdpa_fetch("GAB", wait = TRUE, force = TRUE)
+  x <- wdpa_fetch("GAB", wait = TRUE, check_version = FALSE)
   geom_col <- attr(x, "sf_column")
   attr(x, "sf_column") <- "shape"
   names(x)[names(x) == geom_col] <- "shape"
@@ -142,13 +149,14 @@ test_that("wdpa_clean (geometries in non-geometry column)", {
   expect_true(all(y$STATUS %in% default_retain_status))
 })
 
-test_that("wdpa_clean (single country with no valid non-empty geometries)", {
+test_that("single country with no valid non-empty geometries", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
   skip_on_github_workflow("Windows")
-  x <-
-    suppressWarnings(wdpa_clean(wdpa_fetch("SOM", wait = TRUE, force = TRUE)))
-  y <- wdpa_clean(wdpa_fetch("MHL", wait = TRUE, force = TRUE))
+  x <- wdpa_clean(
+    suppressWarnings(wdpa_fetch("SOM", wait = TRUE, check_version = FALSE))
+  )
+  y <- wdpa_clean(wdpa_fetch("MHL", wait = TRUE))
   crs <- paste("+proj=cea +lon_0=0 +lat_ts=30 +x_0=0",
     "+y_0=0 +datum=WGS84 +ellps=WGS84 +units=m +no_defs")
   expect_identical(x, empty_wdpa_dataset(st_crs(crs)))
@@ -163,14 +171,15 @@ test_that("wdpa_clean (single country with no valid non-empty geometries)", {
   expect_true(all(y$STATUS %in% default_retain_status))
 })
 
-test_that("wdpa_clean (retain UNESCO Biosphere reserves)", {
+test_that("retain UNESCO Biosphere reserves", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
   skip_on_github_workflow("Windows")
   # fetch data
   x <- wdpa_clean(
-    suppressWarnings(wdpa_fetch("MHL", wait = TRUE, force = TRUE)),
-    exclude_unesco = FALSE)
+    suppressWarnings(wdpa_fetch("MHL", wait = TRUE, check_version = FALSE)),
+    exclude_unesco = FALSE
+  )
   # run tests
   expect_is(x, "sf")
   expect_true(all(names(x) %in% wdpa_column_names))
@@ -183,14 +192,49 @@ test_that("wdpa_clean (retain UNESCO Biosphere reserves)", {
   expect_true(all(x$STATUS %in% default_retain_status))
 })
 
-test_that("wdpa_clean (custom retain_status)", {
+test_that("protected areas that turn into long rectangles without prepr", {
+  skip_on_cran()
+  skip_if_not(curl::has_internet())
+  skip_if_not_installed("prepr")
+  skip_on_github_workflow("Windows")
+  # fetch data
+  x <- suppressWarnings(wdpa_fetch("USA", wait = TRUE, check_version = FALSE))
+  x <- x[x$MARINE == "2", , drop = FALSE]
+  y <- wdpa_clean(x, erase_overlaps = FALSE)
+  # run tests
+  expect_is(y, "sf")
+  expect_lte(as.numeric(max(sf::st_area(y))), 1e+13)
+})
+
+test_that("protected areas that massively increase in size without prepr", {
+  skip_on_cran()
+  skip_if_not(curl::has_internet())
+  skip_if_not_installed("prepr")
+  skip_if_not_installed("dplyr")
+  skip_on_github_workflow("Windows")
+  # fetch data
+  ids <- c(23177, 12352, 555705343, 555705341, 555721495)
+  countries <- c("MAR", "DZA")
+  x <- suppressWarnings(
+    lapply(countries, wdpa_fetch, wait = TRUE, check_version = FALSE)
+  )
+  x <- dplyr::bind_rows(x)
+  x <- x[x$WDPAID %in% ids, , drop = FALSE]
+  # clean data
+  y <- wdpa_clean(x, erase_overlaps = FALSE)
+  # run tests
+  expect_is(y, "sf")
+})
+
+test_that("custom retain_status", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
   skip_on_github_workflow("Windows")
   # fetch data
   x <- wdpa_clean(
-    suppressWarnings(wdpa_fetch("MHL", wait = TRUE, force = TRUE)),
-    retain_status = c("Designated", "Proposed"))
+    suppressWarnings(wdpa_fetch("MHL", wait = TRUE, check_version = FALSE)),
+    retain_status = c("Designated", "Proposed")
+  )
   # run tests
   expect_is(x, "sf")
   expect_true(all(names(x) %in% wdpa_column_names))
@@ -203,12 +247,12 @@ test_that("wdpa_clean (custom retain_status)", {
   expect_identical(sort(unique(x$STATUS)), sort(c("Designated", "Proposed")))
 })
 
-test_that("wdpa_clean (NULL retain_status)", {
+test_that("NULL retain_status", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
   skip_on_github_workflow("Windows")
   # fetch data
-  x <- suppressWarnings(wdpa_fetch("MHL", wait = TRUE, force = TRUE))
+  x <- suppressWarnings(wdpa_fetch("MHL", wait = TRUE, check_version = FALSE))
   y <- wdpa_clean(x, retain_status = NULL, erase_overlaps = TRUE)
   # run tests
   expect_is(y, "sf")

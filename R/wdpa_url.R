@@ -1,10 +1,15 @@
 #' @include internal.R
 NULL
 
-#' Download URL for the World Database on Protected Areas
+#' Download URL
 #'
-#' Obtain the URL for downloading data from the World Database on Protected
-#' Areas (WDPA).
+#' Obtain a URL to download data from
+#' [Protected Planet](https://www.protectedplanet.net/en).
+#' Specifically, the URL provides access to data available through
+#' the World Database on Protected Areas
+#' (WDPA) and the World Database on Other Effective Area-Based Conservation
+#' Measures (WDOECM).
+#' **Note that data are accessed assuming non-commercial use.**
 #'
 #' @param x `character` country for desired data. This argument
 #'   can be the name of the country (e.g. `"Liechtenstein"`) or the
@@ -15,6 +20,19 @@ NULL
 #'   should the session be paused until it is ready for download? If argument
 #'   to `wait` is `FALSE` and the data is not ready then an error
 #'   will be thrown. Defaults to `FALSE`.
+#'
+#' @param page_wait `numeric` number of seconds to wait for web pages
+#'   to load when finding the download URL on
+#'   [Protected Planet](https://www.protectedplanet.net/en).
+#'   Defaults to 2.
+#'   Since the process of finding a download URL requires
+#'   navigating through multiple web pages,
+#'   the default argument means that the function will take at least 8
+#'   seconds to complete.
+#'   Users on slow internet connections may experience issues
+#'   with the default argument (e.g. resulting in an error
+#'   containing the message `Error: Summary: NoSuchElement`).
+#'   To avoid this, users can try specifying a greater value (e.g. 5 seconds).
 #'
 #' @return `character` URL to download the data.
 #'
@@ -35,10 +53,14 @@ NULL
 #' print(global_url)
 #' }
 #' @export
-wdpa_url <- function(x, wait = FALSE) {
+wdpa_url <- function(x, wait = FALSE, page_wait = 2) {
   # validate arguments
-  assertthat::assert_that(assertthat::is.string(x), assertthat::is.flag(wait),
-                          curl::has_internet())
+  assertthat::assert_that(
+    assertthat::is.string(x),
+    assertthat::is.flag(wait),
+    assertthat::is.count(page_wait),
+    assertthat::noNA(page_wait),
+    curl::has_internet())
   # declare hidden function
   try_and_find_url <- function(x) {
     ## initialize web driver
@@ -51,17 +73,16 @@ wdpa_url <- function(x, wait = FALSE) {
       rd$open(silent = TRUE)
       rd$maxWindowSize()
       rd$navigate(paste0("https://protectedplanet.net/country/", x))
-      Sys.sleep(2) # wait 2 seconds for page to load
+      Sys.sleep(page_wait) # wait for page to load
       elem <- rd$findElement(using = "css", ".download__trigger")
       elem$clickElement()
-      Sys.sleep(2) # wait 2 seconds for page to load
+      Sys.sleep(page_wait) # wait for page to load
       elem <- rd$findElement(using = "css", "li:nth-child(2) .popup__link")
       elem$clickElement()
-      Sys.sleep(2) # wait 2 seconds for dialog to open
-      elem <- rd$findElement(
-        using = "css", ".modal__link-non-commercial .modal__link-title")
+      Sys.sleep(page_wait) # wait for dialog to open
+      elem <- rd$findElement(using = "css", ".modal__link-button")
       elem$clickElement()
-      Sys.sleep(2) # wait 2 seconds for dialog to open
+      Sys.sleep(page_wait) # wait for for dialog to open
       ## extract html for modal
       src <- xml2::read_html(rd$getPageSource()[[1]][[1]], encoding = "UTF-8")
       divs <- xml2::xml_find_all(src, ".//div")
@@ -79,7 +100,7 @@ wdpa_url <- function(x, wait = FALSE) {
     }))
     ## prepare output
     if (length(url) == 0)
-      return(NA_character_)
+      return(NA_character_) #nocov
     return(url)
   }
   # find url
@@ -93,6 +114,7 @@ wdpa_url <- function(x, wait = FALSE) {
     ## check if data is ready for download
     attempted_url <- try_and_find_url(x)
     ## return NA if not ready and not wait
+    #nocov start
     if (is.na(attempted_url) && !wait) {
       stop(paste("data is not yet available for download; try again later",
                  "or use wait=TRUE"))
@@ -105,6 +127,7 @@ wdpa_url <- function(x, wait = FALSE) {
       ## now that data is available, store the url
       out <- attempted_url
     }
+    #nocov end
   }
   # return url
   return(out)

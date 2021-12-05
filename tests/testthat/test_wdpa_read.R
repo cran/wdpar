@@ -45,12 +45,9 @@ test_that("with point data", {
 test_that("global data", {
   skip_on_cran()
   skip_if_not(curl::has_internet())
-  skip_if_not_installed("pingr")
   skip_on_github_workflow("Windows")
   skip_on_github_workflow("Mac OSX")
-  skip_if(
-    (mean(pingr::ping("www.google.com", count = 10)) > 10) &&
-    !identical(Sys.getenv("CI"), "true"))
+  skip_if_local_and_slow_internet()
   # download data
   url <- suppressWarnings(wdpa_url("global", wait = TRUE))
   path <- file.path(tempdir(), "WDPA_WDOECM_Dec2020_Public.gdb.zip")
@@ -62,4 +59,18 @@ test_that("global data", {
   expect_true(nrow(x) > 0)
   expect_true(all(c("ISO3", "STATUS", "DESIG_ENG", "REP_AREA", "MARINE") %in%
                   names(x)))
+  expect_true(
+    any(
+      vapply(
+        sf::st_geometry(x), inherits, logical(1), c("MULTIPOINT", "POINT")
+      )
+    )
+  )
+  expect_true(
+    any(
+      vapply(
+        sf::st_geometry(x), inherits,  logical(1), c("POLYGON", "MULTIPOLYGON")
+      )
+    )
+  )
 })

@@ -1,3 +1,63 @@
+# wdpar 1.3.2
+
+- CRAN release.
+- Update `read_sf_n` to import data faster.
+- Remove withr R package from DESCRIPTION because it is not used. 
+
+# wdpar 1.3.1.6
+
+- Update `wdpa_clean` to format the `PA_DEF` column to indicate
+  if each area is a protected area (per IUCN and CBD protected area definitions)
+  or an other effective area-based conservation measure (OECM).
+- Update documentation to make it clear that data obtained from Protected Planet
+  include both the World Database on Protected Areas (WDPA) and the World
+  Database on Other Effective Area-Based Conservation Measures (WDOECM).
+- Update citation information to follow recommended citations for the World
+  Database on Protected Areas (WDPA) and the World Database on Other Effective
+  Area-Based Conservation Measures (WDOECM).
+- Update URLs to pass CRAN checks.
+
+# wdpar 1.3.1.5
+
+- Update `wdpa_fetch` with new `check_version` argument to specify if
+  the version of cached data should be checked against the latest version
+  available online.
+- Update `wdpa_clean` to not throw an unnecessary and confusing warning message
+  when attempting to clean data that do not contain any valid polygon
+  geometries.
+
+# wdpar 1.3.1.4
+
+- Fix bug in `wdpa_read` to ensure that all data from global database.
+  This is a bug previously meant that protected areas denoted with polygon
+  geometry data were not imported. It is strongly recommended that users
+  double check processed versions of the global database to verify correctness.
+- Add example script for downloading and cleaning data
+  (see `inst/scripts/global-example-script.R`)
+- New `st_repair_geometry` function to repair geometry using a combination
+  of `sf::st_make_valid` and `prepr::st_prepair`. This function is now
+  used by the `wdpa_clean` function to augment data cleaning procedures.
+- Update `wdpa_url` and `wdpa_fetch` to have a `page_wait` parameter
+  to specify the wait time for loading web pages when finding the download
+  URLs for datasets (#39).
+- Add _dplyr_ package to Suggests because it is used in an example.
+
+# wdpar 1.3.1.3
+
+- Update `wdpa_clean` to provide better information when cleaning data.
+- Update documentation to provide guidelines for processing global dataset.
+- New `wdpa_dissolve` function to dissolve geometries together (#22).
+
+# wdpar 1.3.1.2
+
+- Fix tests that fail package checks given only strict dependencies.
+- Update citation information in README and vignette.
+
+# wdpar 1.3.1.1
+
+- Update `wdpa_url` function to be compatible with changes on
+  <https://www.protectedplanet.net/en> for downloading country-level datasets.
+
 # wdpar 1.3.1
 
 - CRAN release.

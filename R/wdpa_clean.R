@@ -1,9 +1,17 @@
-#' @include internal.R geo.R
+#' @include internal.R st_erase_overlaps.R
 NULL
 
-#' Clean data from the World Database on Protected Areas
+#' Clean data
 #'
-#' Clean data obtained from the World Database on Protected Areas (WDPA).
+#' Clean data obtained from
+#' [Protected Planet](https://www.protectedplanet.net/en).
+#' Specifically, this function is designed to clean data obtained from
+#' the World Database on Protected Areas
+#' (WDPA) and the World Database on Other Effective Area-Based Conservation
+#' Measures (WDOECM).
+#' For recommended practices on cleaning large datasets
+#' (e.g. datasets that span multiple countries or a large geographic area),
+#' please see below.
 #'
 #' @param x [sf::sf()] object containing protected area data.
 #'
@@ -51,17 +59,11 @@ NULL
 #'   Defaults to `TRUE` in an interactive session, otherwise
 #'   `FALSE`.
 #'
-#' @details This function cleans data from World Database on Protected Areas
-#'   following best practices (Butchart *et al.* 2015, Runge *et al.*
-#'   2015,
-#'   <https://www.protectedplanet.net/en/resources/calculating-protected-area-coverage>).
+#' @details This function cleans data following best practices
+#'   (Butchart *et al.* 2015; Protected Planet 2021; Runge *et al.* 2015).
 #'   To obtain accurate protected area coverage statistics for a country,
 #'   please note that you will need to manually clip the cleaned data to
 #'   the countries' coastline and its Exclusive Economic Zone (EEZ).
-#'   Although this function can *in theory* be used to clean the global
-#'   dataset, this process can take several weeks to complete. Therefore, it is
-#'   strongly recommended to use alternative methods for cleaning the global
-#'   dataset.
 #'
 #'   \enumerate{
 #'
@@ -95,8 +97,8 @@ NULL
 #'   \item Reproject data to coordinate system specified in argument to
 #'     `crs` (using [sf::st_transform()]).
 #'
-#'   \item Fix any invalid geometries that have manifested
-#'     (using [sf::st_make_valid()]).
+#'   \item Repair any invalid geometries that have manifested
+#'     (using [st_repair_geometry()]).
 #'
 #'   \item Buffer areas represented as point localities to circular areas
 #'     using their reported spatial extent (using data in the field
@@ -107,19 +109,22 @@ NULL
 #'     geometry issues (using argument to `snap_tolerance` and
 #'     [lwgeom::st_snap_to_grid()]).
 #'
-#'   \item Fix any invalid geometries that have manifested
-#'     (using [sf::st_make_valid()]).
+#'   \item Repair any invalid geometries that have manifested
+#'     (using [st_repair_geometry()]).
 #'
 #'   \item Simplify the protected area geometries to reduce computational burden
 #'     (using argument to `simplify_tolerance` and
 #'     [sf::st_simplify()]).
 #'
-#'   \item Fix any invalid geometries that have manifested
-#'     (using [sf::st_make_valid()]).
+#'   \item Repair any invalid geometries that have manifested
+#'     (using [st_repair_geometry()]).
 #'
 #'   \item The `"MARINE"` field is converted from integer codes
 #'     to descriptive names (i.e. `0` = `"terrestrial"`,
 #'     `1` = `"partial"`, `2` = `"marine"`).
+#'
+#'   \item The `"PA_DEF"` field is converted from integer codes
+#'   to descriptive names (i.e. `0` = `"OECM"`, and `1` = `"PA"`).
 #'
 #'   \item Zeros in the `"STATUS_YR"` field are replaced with
 #'     missing values (i.e. `NA_real_` values).
@@ -143,10 +148,36 @@ NULL
 #'
 #'  }
 #'
+#' @section Recommended practices for large datasets:
+#' This function can be used to clean large datasets assuming that
+#' sufficient computational resources and time are available.
+#' Indeed, it can clean data spanning large countries, multiple
+#' countries, and even the full global dataset.
+#' When processing the full global dataset, it is recommended to use a
+#' computer system with at least 32 GB RAM available and to allow for at least
+#' one full day for the data cleaning procedures to complete.
+#' It is also recommended to avoid using the computer system for any other
+#' tasks while the data cleaning procedures are being completed,
+#' because they are very computationally intensive.
+#' Additionally, when processing large datasets -- and especially
+#' for the global dataset -- it is strongly recommended to disable the
+#' procedure for erasing overlapping areas.
+#' This is because the built-in procedure for erasing overlaps is
+#' very time consuming when processing many protected areas, so that
+#' information on each protected area can be output
+#' (e.g. IUCN category, year established).
+#' Instead, when cleaning large datasets, it is recommended to run
+#' the data cleaning procedures with the procedure for erasing
+#' overlapping areas disabled (i.e. with `erase_overlaps = FALSE`).
+#' After the data cleaning procedures have completed,
+#' the protected area data can be manually dissolved
+#' to remove overlapping areas (e.g. using [wdpa_dissolve()]).
+#' For an example of processing a large protected area dataset,
+#' please see the vignette.
+#'
 #' @return [sf::sf()] object.
 #'
-#' @seealso [wdpa_fetch()],
-#'   <https://www.protectedplanet.net/en/resources/calculating-protected-area-coverage>.
+#' @seealso [wdpa_fetch()], [wdpa_dissolve()].
 #'
 #' @references
 #' Butchart SH, Clarke M, Smith RJ, Sykes RE, Scharlemann JP,
@@ -166,6 +197,10 @@ NULL
 #' (2015) Protected areas and global conservation of migratory birds.
 #' *Science*, **350**: 1255--1258.
 #'
+#' Protected Planet (2021) Calculating protected and OECM area coverage.
+#' Available at:
+#' <https://www.protectedplanet.net/en/resources/calculating-protected-area-coverage>.
+#'
 #' Visconti P, Di Marco M, Alvarez-Romero JG, Januchowski-Hartley SR, Pressey,
 #' RL, Weeks R & Rondinini C (2013) Effects of errors and gaps in spatial data
 #' sets on assessment of conservation progress. *Conservation Biology*,
@@ -181,6 +216,7 @@ NULL
 #'
 #' # plot cleaned dataset
 #' plot(lie_data)
+#'
 #' }
 #' @export
 wdpa_clean <- function(x,
@@ -195,12 +231,16 @@ wdpa_clean <- function(x,
                        erase_overlaps = TRUE,
                        verbose = interactive()) {
   # check arguments are valid
+  ## display message
+  if (isTRUE(verbose)) {
+    cli::cli_progress_step("initializing")
+  }
   ## simple arguments
   assertthat::assert_that(inherits(x, "sf"),
                           nrow(x) > 0,
                           all(assertthat::has_name(x, c("ISO3", "STATUS",
                                                         "DESIG_ENG", "REP_AREA",
-                                                        "MARINE"))),
+                                                        "MARINE", "PA_DEF"))),
                           assertthat::is.string(crs) ||
                           assertthat::is.count(crs),
                           assertthat::is.number(snap_tolerance),
@@ -227,53 +267,23 @@ wdpa_clean <- function(x,
   ## exclude areas based on status
   if (is.null(retain_status)) {
     if (verbose) {
-      message("retaining all areas (i.e. not removing areas based on status): ",
-              "\r", appendLF = FALSE)
-      utils::flush.console()
-      message("retaining all areas (i.e. not removing areas based on status): ",
-              cli::symbol$tick)
+      cli::cli_progress_step("retaining areas regardless of status)")
     }
   } else {
-    ### determine if defaults are used
-    default_status <- c("Designated", "Inscribed", "Established")
-    exclude_not_implemented <-
-      identical(sort(default_status), sort(retain_status))
-    ### prepare message
-    if (exclude_not_implemented) {
-      msg <- paste0(
-        "retaining only areas with specified statuses ",
-        " (i.e. removing areas that are not implemented): ")
-    } else {
-      msg <- paste0(
-        "retaining only areas with specified statuses ",
-        " (i.e. retaining ",
-        paste(paste0("\"", retain_status, "\""), collapse = ","), "): ")
-    }
     if (verbose) {
-      message(msg, cli::symbol$continue, "\r", appendLF = FALSE)
+      cli::cli_progress_step("retaining only areas with specified statuses")
     }
     x <- x[which(x$STATUS %in% retain_status), ]
-    if (verbose) {
-      utils::flush.console()
-      message(msg, cli::symbol$tick)
-    }
   }
   ## remove UNESCO sites if needed
   if (exclude_unesco) {
-    if (verbose)
-      message("removing UNESCO Biosphere Reserves: ", cli::symbol$continue,
-              "\r", appendLF = FALSE)
-    x <- x[x$DESIG_ENG != "UNESCO-MAB Biosphere Reserve", ]
     if (verbose) {
-      utils::flush.console()
-      message("removing UNESCO Biosphere Reserves: ", cli::symbol$tick)
+      cli::cli_progress_step("removing UNESCO Biosphere Reserves")
     }
+    x <- x[x$DESIG_ENG != "UNESCO-MAB Biosphere Reserve", ]
   } else {
     if (verbose) {
-      message("retaining UNESCO Biosphere Reserves: ", cli::symbol$continue,
-              "\r", appendLF = FALSE)
-      utils::flush.console()
-      message("retaining UNESCO Biosphere Reserves: ", cli::symbol$tick)
+      cli::cli_progress_step("retaining UNESCO Biosphere Reserves")
     }
   }
   ## assign column indicating geometry type
@@ -283,74 +293,43 @@ wdpa_clean <- function(x,
   x$GEOMETRY_TYPE[is_point] <- "POINT"
   ## remove protected areas represented as points that do not have
   ## a reported area
-  if (verbose) message("removing points with no reported area: ",
-                       cli::symbol$continue, "\r", appendLF = FALSE)
+  if (verbose) {
+    cli::cli_progress_step("removing points with no reported area")
+  }
   x <- x[!(x$GEOMETRY_TYPE == "POINT" & !is.finite(x$REP_AREA)), ]
-  if (verbose) {
-    utils::flush.console()
-    message("removing points with no reported area: ", cli::symbol$tick)
-  }
-  ## repair geometry
-  if (verbose) message("repairing geometry: ", cli::symbol$continue, "\r",
-                       appendLF = FALSE)
-  x <- sf::st_set_precision(x, geometry_precision)
-  x <- sf::st_make_valid(x)
-  x <- x[!sf::st_is_empty(x), ]
-  x <- extract_polygons_and_points(x)
-  if (verbose) {
-    utils::flush.console()
-    message("repairing geometry: ", cli::symbol$tick)
-  }
-
   ## wrap dateline issues
-  if (verbose) message("wrapping dateline: ", cli::symbol$continue, "\r",
-                       appendLF = FALSE)
+  if (verbose) {
+    cli::cli_progress_step("wrapping dateline")
+  }
   x <- sf::st_set_precision(x, geometry_precision)
   x <- suppressWarnings(sf::st_wrap_dateline(x,
     options = c("WRAPDATELINE=YES", "DATELINEOFFSET=180")))
   x <- x[!sf::st_is_empty(x), ]
   x <- extract_polygons_and_points(x)
   x <- sf::st_set_precision(x, geometry_precision)
-  if (verbose) {
-    utils::flush.console()
-    message("wrapping dateline: ", cli::symbol$tick)
-  }
   ## repair geometry
-  if (verbose) message("repairing geometry: ", cli::symbol$continue, "\r",
-                       appendLF = FALSE)
-  x <- sf::st_set_precision(x, geometry_precision)
-  x <- sf::st_make_valid(x)
-  x <- x[!sf::st_is_empty(x), ]
-  x <- extract_polygons_and_points(x)
-  x <- sf::st_set_precision(x, geometry_precision)
   if (verbose) {
-    utils::flush.console()
-    message("repairing geometry: ", cli::symbol$tick)
+    cli::cli_progress_step("repairing geometry")
   }
+  x <- st_repair_geometry(x, geometry_precision)
   ## reproject data
-  if (verbose) message("projecting areas: ", cli::symbol$continue, "\r",
-                       appendLF = FALSE)
+  if (verbose) {
+    cli::cli_progress_step("reprojecting data")
+  }
   x <- sf::st_set_precision(x, geometry_precision)
   x <- sf::st_transform(x, crs)
   x <- sf::st_set_precision(x, geometry_precision)
-  if (verbose) {
-    utils::flush.console()
-    message("projecting areas: ", cli::symbol$tick)
-  }
   ## repair geometry again
-  if (verbose) message("repairing geometry: ", cli::symbol$continue, "\r",
-                       appendLF = FALSE)
-  x <- sf::st_make_valid(x)
-  x <- x[!sf::st_is_empty(x), ]
-  x <- extract_polygons_and_points(x)
-  x <- sf::st_set_precision(x, geometry_precision)
   if (verbose) {
-    utils::flush.console()
-    message("repairing geometry: ", cli::symbol$tick)
+    cli::cli_progress_step("repairing geometry")
   }
+  x <- st_repair_geometry(x, geometry_precision)
   ## buffer polygons by zero to fix any remaining issues
   x_polygons_pos <- which(x$GEOMETRY_TYPE == "POLYGON")
   if (length(x_polygons_pos) > 0) {
+    if (verbose) {
+      cli::cli_progress_step("further geometry fixes (i.e. buffering by zero)")
+    }
     if (verbose) message("buffering by zero: ", cli::symbol$continue, "\r",
                          appendLF = FALSE)
     x_polygons_data <- x[x_polygons_pos, ]
@@ -358,98 +337,83 @@ wdpa_clean <- function(x,
     x_polygons_data <- sf::st_buffer(x_polygons_data, 0)
     x <- rbind(x[which(x$GEOMETRY_TYPE == "POINT"), ], x_polygons_data)
     x <- sf::st_set_precision(x, geometry_precision)
-    if (verbose) {
-      utils::flush.console()
-      message("buffering by zero: ", cli::symbol$tick)
-    }
   }
   ## buffer areas represented as points
   x_points_pos <- which(x$GEOMETRY_TYPE == "POINT")
   if (length(x_points_pos) > 0) {
-    if (verbose) message("buffering points: ", cli::symbol$continue, "\r",
-                         appendLF = FALSE)
+    if (verbose) {
+      cli::cli_progress_step("buffering points to reported area")
+    }
     x_points_data <- x[x_points_pos, ]
     x_points_data <- sf::st_buffer(x_points_data,
                        sqrt((x_points_data$REP_AREA * 1e6) / pi))
-    x <- rbind(x[which(x$GEOMETRY_TYPE == "POLYGON"), ], x_points_data)
-    x <- sf::st_set_precision(x, geometry_precision)
-    if (verbose) {
-      utils::flush.console()
-      message("buffering points: ", cli::symbol$tick)
+    if (any(x$GEOMETRY_TYPE == "POLYGON")) {
+      x <- rbind(x[which(x$GEOMETRY_TYPE == "POLYGON"), ], x_points_data)
+    } else {
+      x <- x_points_data
     }
+    x <- sf::st_set_precision(x, geometry_precision)
   }
   ## return empty dataset if no valid non-empty geometries remain
   if (all(sf::st_is_empty(x))) {
-    if (verbose) message("no valid non-empty geometries remain, return empty ",
-                         "dataset")
+    if (verbose) {
+      cli::cli_alert_warning(
+        "no valid non-empty geometries remain, returning empty dataset")
+    }
     return(empty_wdpa_dataset(sf::st_crs(x)))
   }
   ## simplify geometries
   if (simplify_tolerance > 0) {
-    if (verbose) message("simplifying geometry: ", cli::symbol$continue,
-                         "\r", appendLF = FALSE)
-      x <- sf::st_set_precision(x, geometry_precision)
-      x <- sf::st_simplify(x, TRUE, simplify_tolerance)
-      x <- sf::st_set_precision(x, geometry_precision)
-      x <- x[!sf::st_is_empty(x), ]
-      x <- suppressWarnings(sf::st_collection_extract(x, "POLYGON"))
-      x <- sf::st_set_precision(x, geometry_precision)
     if (verbose) {
-      utils::flush.console()
-      message("simplifying geometry: ", cli::symbol$tick)
+      cli::cli_progress_step("simplifying geometry")
     }
+    x <- sf::st_set_precision(x, geometry_precision)
+    x <- sf::st_simplify(x, TRUE, simplify_tolerance)
+    x <- sf::st_set_precision(x, geometry_precision)
+    x <- x[!sf::st_is_empty(x), ]
+    x <- suppressWarnings(sf::st_collection_extract(x, "POLYGON"))
+    x <- sf::st_set_precision(x, geometry_precision)
   }
   ## repair geometry again
-  if (verbose) message("repairing geometry: ", cli::symbol$continue, "\r",
-                       appendLF = FALSE)
-  x <- sf::st_set_precision(x, geometry_precision)
-  x <- sf::st_make_valid(x)
-  x <- x[!sf::st_is_empty(x), ]
-  x <- suppressWarnings(sf::st_collection_extract(x, "POLYGON"))
-  x <- sf::st_set_precision(x, geometry_precision)
   if (verbose) {
-    utils::flush.console()
-    message("repairing geometry: ", cli::symbol$tick)
+    cli::cli_progress_step("repairing geometry")
   }
+  x <- st_repair_geometry(x, geometry_precision)
   ## snap geometry to grid
   if (snap_tolerance > 0) {
-    if (verbose) message("snapping geometry to grid: ", cli::symbol$continue,
-                         "\r", appendLF = FALSE)
-      x <- sf::st_set_precision(x, geometry_precision)
-      x <- lwgeom::st_snap_to_grid(x, snap_tolerance)
-      x <- sf::st_set_precision(x, geometry_precision)
     if (verbose) {
-      utils::flush.console()
-      message("snapping geometry to grid: ", cli::symbol$tick)
+      cli::cli_progress_step("snapping geometry to tolerance")
     }
+    x <- sf::st_set_precision(x, geometry_precision)
+    x <- lwgeom::st_snap_to_grid(x, snap_tolerance)
+    x <- sf::st_set_precision(x, geometry_precision)
   }
   ## repair geometry again
-  if (verbose) message("repairing geometry: ", cli::symbol$continue, "\r",
-                       appendLF = FALSE)
-  x <- sf::st_set_precision(x, geometry_precision)
-  x <- sf::st_make_valid(x)
-  x <- x[!sf::st_is_empty(x), ]
-  x <- suppressWarnings(sf::st_collection_extract(x, "POLYGON"))
-  x <- sf::st_set_precision(x, geometry_precision)
   if (verbose) {
-    utils::flush.console()
-    message("repairing geometry: ", cli::symbol$tick)
+    cli::cli_progress_step("repairing geometry")
   }
+  x <- st_repair_geometry(x, geometry_precision)
   ## format columns
-  if (verbose) message("formatting attribute data: ", cli::symbol$continue,
-                       "\r", appendLF = FALSE)
+  if (verbose) {
+    cli::cli_progress_step("formatting attribute data")
+  }
+  ### MARINE field
   x$MARINE[x$MARINE == "0"] <- "terrestrial"
   x$MARINE[x$MARINE == "1"] <- "partial"
   x$MARINE[x$MARINE == "2"] <- "marine"
+  ### STATUS_YR field
   x$STATUS_YR[x$STATUS_YR == 0] <- NA_real_
+  ### NO_TK_AREA field
   x$NO_TK_AREA[x$NO_TAKE %in% c("Not Reported", "Not Applicable")] <- NA_real_
+  ### PA_DEF field
+  x$PA_DEF <- as.character(x$PA_DEF)
+  x$PA_DEF[x$PA_DEF == "0"] <- "OECM"
+  x$PA_DEF[x$PA_DEF == "1"] <- "PA"
   if (verbose) {
-    utils::flush.console()
-    message("formatting attribute data: ", cli::symbol$tick)
+    cli::cli_progress_done()
   }
   ## remove overlaps data
   if (erase_overlaps && isTRUE(nrow(x) > 1)) {
-    if (verbose) message("erasing overlaps: ", cli::symbol$continue)
     x$IUCN_CAT <- factor(as.character(x$IUCN_CAT),
                          levels = c("Ia", "Ib", "II", "III", "IV", "V", "VI",
                                     "Not Reported", "Not Applicable",
@@ -460,25 +424,18 @@ wdpa_clean <- function(x,
     x <- x[!sf::st_is_empty(x), ]
     x <- suppressWarnings(sf::st_collection_extract(x, "POLYGON"))
     x <- sf::st_set_precision(x, geometry_precision)
-    if (verbose) message("erasing overlaps: ", cli::symbol$tick)
   }
   ## remove slivers
-  if (verbose) message("removing slivers: ", cli::symbol$continue, "\r",
-                       appendLF = FALSE)
-  x <- x[as.numeric(sf::st_area(x)) > 0.1, ]
   if (verbose) {
-    utils::flush.console()
-    message("removing slivers: ", cli::symbol$tick)
+    cli::cli_progress_step("removing slivers")
   }
+  x <- x[as.numeric(sf::st_area(x)) > 0.1, ]
   ## calculate area in square kilometers
-  if (verbose) message("calculating area: ", cli::symbol$continue, "\r",
-                       appendLF = FALSE)
+  if (verbose) {
+    cli::cli_progress_step("calculating spatial statistics")
+  }
   areas <- as.numeric(sf::st_area(x)) * 1e-6
   x$AREA_KM2 <- as.numeric(areas)
-  if (verbose) {
-    utils::flush.console()
-    message("calculating area: ", cli::symbol$tick)
-  }
   ## move geometry to last column
   if ((!"geometry" %in% names(x))) {
     geom_col <- attr(x, "sf_column")
@@ -487,5 +444,5 @@ wdpa_clean <- function(x,
   }
   x <- x[, c(setdiff(names(x), "geometry"), "geometry")]
   # return cleaned data
-  return(x)
+  x
 }

@@ -1,12 +1,14 @@
 #' @include internal.R
 NULL
 
-#' Read data from the World Database on Protected Areas
+#' Read data
 #'
-#' Read data from the World Database on Protected Areas from a local file.
-#' This function assumes that the data has already been downloaded to
-#' your computer, see the [wdpa_fetch()] function for automatically
-#' downloading and importing the data into the current session.
+#' Read data obtained from
+#' [Protected Planet](https://www.protectedplanet.net/en).
+#' Specifically, this function is designed to import data obtained from
+#' the World Database on Protected Areas
+#' (WDPA) and the World Database on Other Effective Area-Based Conservation
+#' Measures (WDOECM).
 #'
 #' @param x `character` file name for a zip archive file downloaded from
 #'   <https://www.protectedplanet.net/en>.
@@ -14,10 +16,19 @@ NULL
 #' @param n `integer` number of records to import per data source.
 #'   Defaults to `NULL` such that all data are imported.
 #'
+#' @details
+#' This function assumes that data have previously been downloaded to
+#' your computer, and need to import the data.
+#' After importing the data, it is strongly recommended to clean the data
+#' prior to analysis (see [wdpa_clean()]).
+#'
+#' @inheritSection wdpa_fetch Data source
+#'
 #' @return [sf::sf()] object.
 #'
-#' @seealso [wdpa_fetch()], [wdpa_clean()],
-#'   <https://www.protectedplanet.net/en>.
+#' @seealso [wdpa_fetch()], [wdpa_clean()].
+#'
+#' @inherit wdpa_fetch references
 #'
 #' @examples
 #' \dontrun{
@@ -77,7 +88,8 @@ wdpa_read <- function(x, n = NULL) {
       wdpa_point_data <- read_sf_n(gdb_paths, point_path, n)
       wdpa_polygon_data <- read_sf_n(gdb_paths, polygon_path, n)
     } else if (length(gdb_paths) == 2) {
-      ### WDPA >= Dec2020
+      ### WDPA <= Dec2020
+      #nocov start
       point_path <-
         grep("point", gdb_paths, value = TRUE, ignore.case = TRUE)
       polygon_path <-
@@ -91,8 +103,9 @@ wdpa_read <- function(x, n = NULL) {
         read_sf_n(point_path, "WDPA_WDOECM_wdpa_gdb_points", n)
       wdpa_polygon_data <-
         read_sf_n(polygon_path, "WDPA_WDOECM_wdpa_gdb_polygons", n)
+      #nocov end
     } else {
-      stop("global data format not recognized.")
+      stop("global data format not recognized.") #nocov
     }
     ## extract point and polygon data
     ## merge data together
