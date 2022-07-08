@@ -1,8 +1,32 @@
+# wdpar 1.3.3
+
+- CRAN release.
+- Reduce test timings.
+
+# wdpar 1.3.2.4
+
+- Fix compatibility with GEOS (version 3.11.0) (#50, #51).
+- Fix broken URLs in documentation.
+
+# wdpar 1.3.2.3
+
+- Fix typos in documentation, add JOSS paper, and add contributing guide.
+
+# wdpar 1.3.2.2
+
+- Reduce false-negative rate when checking for available internet
+  connection (#10).
+
+# wdpar 1.3.2.1
+
+- Select a random port for the web driver (#41).
+- Make web driver clean up more robust (#41).
+
 # wdpar 1.3.2
 
 - CRAN release.
 - Update `read_sf_n` to import data faster.
-- Remove withr R package from DESCRIPTION because it is not used. 
+- Remove withr R package from DESCRIPTION because it is not used.
 
 # wdpar 1.3.1.6
 

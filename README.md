@@ -6,7 +6,8 @@
 [![lifecycle](https://img.shields.io/badge/Lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![R-CMD-check-Ubuntu](https://img.shields.io/github/workflow/status/prioritizr/wdpar/Ubuntu/master.svg?label=Ubuntu)](https://github.com/prioritizr/wdpar/actions)
 [![R-CMD-check-Windows](https://img.shields.io/github/workflow/status/prioritizr/wdpar/Windows/master.svg?label=Windows)](https://github.com/prioritizr/wdpar/actions)
-[![R-CMD-check-Mac-OSX](https://img.shields.io/github/workflow/status/prioritizr/wdpar/Mac%20OSX/master.svg?label=Mac%20OSX)](https://github.com/prioritizr/wdpar/actions)
+[![R-CMD-check-macOS](https://img.shields.io/github/workflow/status/prioritizr/wdpar/macOS/master.svg?label=macOS)](https://github.com/prioritizr/wdpar/actions)
+[![Documentation](https://img.shields.io/github/workflow/status/prioritizr/wdpar/Documentation/master.svg?label=Documentation)](https://github.com/prioritizr/wdpar/actions)
 [![Coverage
 Status](https://codecov.io/github/prioritizr/wdpar/coverage.svg?branch=master)](https://codecov.io/github/prioritizr/wdpar?branch=master)
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/wdpar)](https://CRAN.R-project.org/package=wdpar)
@@ -28,8 +29,8 @@ cleaning process needs to be repeated after obtaining a new version.
 
 The *wdpar R* package provides an interface to data provided by
 [Protected Planet](https://www.protectedplanet.net/en). Specifically,
-the package can automatically data from the [World Database on Protected
-Areas
+the package can automatically obtain data from the [World Database on
+Protected Areas
 (WDPA)](https://www.protectedplanet.net/en/thematic-areas/wdpa?tab=WDPA)
 and the [World Database on Other Effective Area-Based Conservation
 Measures
@@ -200,7 +201,7 @@ head(mlt_pa_data)
 Finally, after cleaning the data, let’s plot a map showing Malta’s
 protected areas and color each area according to its management category
 ([as defined by the The International Union for Conservation of
-Nature](https://www.iucn.org/theme/protected-areas/about/protected-area-categories)).
+Nature](https://www.iucn.org/)).
 
 ``` r
 # reproject data to longitude/latitude for plotting
@@ -239,14 +240,14 @@ publications.
 
 To cite the latest official version, please use:
 
-> Hanson JO (2021). wdpar: Interface to the World Database on Protected
-> Areas. R package version 1.3.2. Available at
+> Hanson JO (2022). wdpar: Interface to the World Database on Protected
+> Areas. R package version 1.3.3. Available at
 > <https://CRAN.R-project.org/package=wdpar>.
 
 To cite the latest development version, please use:
 
-> Hanson JO (2021). wdpar: Interface to the World Database on Protected
-> Areas. R package version 1.3.2. Available at
+> Hanson JO (2022). wdpar: Interface to the World Database on Protected
+> Areas. R package version 1.3.3. Available at
 > <https://github.com/prioritizr/wdpar>.
 
 To cite the World Database on Protected Areas (WDPA), please use:
