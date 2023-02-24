@@ -1,3 +1,46 @@
+# wdpar 1.3.4
+
+- CRAN release.
+- Update citation format.
+
+# wdpar 1.3.3.6
+
+- Fix broken URL in vignette.
+- Fix badges in README.
+
+# wdpar 1.3.3.5
+
+- Update citation information with journal article.
+
+# wdpar 1.3.3.4
+
+- Fix tests when PhatomJS not installed.
+- Fix broken URL in vignette.
+
+# wdpar 1.3.3.3
+
+- Improve error message for `wdpa_fetch()` when PhantomJS is not
+  installed (#63).
+
+# wdpar 1.3.3.2
+
+- Add URLs to README for citations (#58).
+- Update `wdpa_fetch()` documentation to provide information on out of date
+  warnings (#59).
+- Update `wdpa_fetch()` warnings to be more descriptive and use the _cli_
+  package for consistent alert messages.
+
+# wdpar 1.3.3.1
+
+- Update paper for JOSS submission (#53, #54, #62).
+- Update vignette with new section on local scale analyses (#53).
+- Update `wdpa_fetch()` function to use the webdriver package for obtaining data
+  (replacing Rselenium package as a dependency) (#63).
+- Update `st_repair_geometry()` to be more robust.
+- Fix failing tests for `st_repair_geometry()` function.
+- Update documentation for `wdpa_clean()` function.
+- Fix broken URL in vignette.
+
 # wdpar 1.3.3
 
 - CRAN release.
