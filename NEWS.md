@@ -1,3 +1,10 @@
+# wdpar 1.3.5
+
+- CRAN release.
+- Fix compatibility issues with Protected Planet (#69).
+- Update `wdpa_clean()` to be more robust (#68).
+- Remove _sp_ package as dependency.
+
 # wdpar 1.3.4
 
 - CRAN release.
@@ -14,7 +21,7 @@
 
 # wdpar 1.3.3.4
 
-- Fix tests when PhatomJS not installed.
+- Fix tests when PhantomJS not installed.
 - Fix broken URL in vignette.
 
 # wdpar 1.3.3.3
