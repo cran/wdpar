@@ -1,3 +1,41 @@
+# wdpar 1.3.8
+
+- CRAN release.
+- Minor improvements to documentation.
+
+# wdpar 1.3.7.4
+
+- Fix typo in text formatting for `wdpa_clean()` documentation.
+
+# wdpar 1.3.7.3
+
+- Fix bugs in `wdpa_fetch()` and `wdpa_read()` on MacOS.
+  Thanks to Jason Everett (@jaseeverett) for code contribution.
+- Update DESCRIPTION with _prepr_ package information.
+- Update README with Chromium dependencies.
+- Update global example global processing script with increased precision.
+- Update vignette to be compatible with changes to GADM website.
+- Fix issue with tests leaving left-over files in temporary directories.
+
+# wdpar 1.3.7.2
+
+- Update `wdpa_fetch()` to use the _chromote_ package to handle web scrapping
+ (instead of the _webdriver_ package).
+- Update `wdpa_fetch()` so that it can download country-level data in either
+  shapefile or file geodatabase format (using the new `datatype` parameter).
+  Since file geodatabase data appears to be more robust, `wdpa_fetch()`
+  now defaults to downloading data in file geodatabase format.
+- Update `wdpa_clean()` to standardize column names so that cleaning
+  either shapefile or file geodatabase data results in the same output.
+- Update `wdpa_clean()` so that it removes leading/trailing white space
+  characters from the `"MANG_PLAN"` field.
+- Fix bug in `wdpa_read()` that causes output objects to contain no columns.
+- Update README and vignette to be compatible with updates to _ggmap_ package.
+
+# wdpar 1.3.7.1
+
+- Update tests to accommodate corrupted data from Protected Planet.
+
 # wdpar 1.3.7
 
 - CRAN release.
@@ -93,7 +131,7 @@
 
 - CRAN release.
 - Update `read_sf_n` to import data faster.
-- Remove withr R package from DESCRIPTION because it is not used.
+- Remove _withr_ package from DESCRIPTION because it is not used.
 
 # wdpar 1.3.1.6
 

@@ -10,7 +10,7 @@
 [![Documentation](https://img.shields.io/github/actions/workflow/status/prioritizr/wdpar/documentation.yaml?branch=master&label=Documentation)](https://github.com/prioritizr/wdpar/actions)
 [![Coverage
 Status](https://img.shields.io/codecov/c/github/prioritizr/wdpar?label=Coverage)](https://app.codecov.io/gh/prioritizr/wdpar/branch/master)
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/wdpar)](https://CRAN.R-project.org/package=wdpar)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/wdpar)](https://CRAN.R-project.org/package=wdpar)
 
 ### Overview
 
@@ -67,8 +67,7 @@ may contain additional features not present in the official version,
 they may also contain coding errors.
 
 ``` r
-if (!require(remotes))
-  install.packages("remotes")
+if (!require(remotes)) install.packages("remotes")
 remotes::install_github("prioritizr/wdpar")
 ```
 
@@ -84,9 +83,8 @@ available. To install the *prepr R* package, please use the following R
 code.
 
 ``` r
-if (!require(remotes))
-  install.packages("remotes")
-remotes::install_github("dickoa/prepr")
+if (!require(remotes)) install.packages("remotes")
+remotes::install_github("prioritizr/prepr")
 ```
 
 Note that the *prepr R* package has system dependencies that need to be
@@ -95,37 +93,43 @@ platform-specific instructions).
 
 ##### *Windows*
 
-The [Rtools](https://cran.r-project.org/bin/windows/Rtools/) software
-needs to be installed to install the *prepr R* package package from
-source. This software provides system requirements from
+A Chromium-based web browser to be installed (e.g., Google Chrome,
+Chromium, Brave). Also, the
+[Rtools](https://cran.r-project.org/bin/windows/Rtools/) software needs
+to be installed to install the *prepr R* package package from source.
+This software provides system requirements from
 [rwinlib](https://github.com/rwinlib/).
 
 ##### *Ubuntu*
 
-The `gmp`, `mpfr`, and several spatial libraries need to be installed.
-For recent versions of Ubuntu (18.04 and later), these libraries are
-available through official repositories. They can be installed using the
-following system commands:
+A Chromium-based web browser to be installed (e.g., Google Chrome,
+Chromium, Brave). Also, the `gmp`, `mpfr`, and several spatial libraries
+need to be installed. For recent versions of Ubuntu (18.04 and later),
+these libraries are available through official repositories. They can be
+installed using the following system commands:
 
     apt-get -y update
-    apt-get install -y libgmp3-dev libmpfr-dev libudunits2-dev libgdal-dev libgeos-dev libproj-dev
+    apt-get install -y libgmp3-dev libmpfr-dev libudunits2-dev libgdal-dev libgeos-dev libproj-dev chromium-browser
 
 ##### *Linux*
 
-For Unix-alikes, `gmp` (&gt;= 4.2.3), `mpfr` (&gt;= 3.0.0), and `gdal`
-(&gt;= 3.2.2) are required.
+For Unix-alikes, a Chromium-based web browser (e.g., Google Chrome,
+Chromium, Brave), `gmp` (\>= 4.2.3), `mpfr` (\>= 3.0.0), and `gdal` (\>=
+3.2.2) are required.
 
-##### *MacOS*
+##### *macOS*
 
-The `gmp`, `mpfr`, and `gdal` libraries are required. The easiest way to
-install these libraries is using [HomeBrew](https://brew.sh/). After
-installing HomeBrew, these libraries can be installed using the
-following commands in the system terminal:
+A Chromium-based web browser to be installed (e.g., Google Chrome,
+Chromium, Brave). Also, the `gmp`, `mpfr`, and `gdal` libraries are
+required. The easiest way to install these libraries is using
+[HomeBrew](https://brew.sh/). After installing HomeBrew, these libraries
+can be installed using the following commands in the system terminal:
 
     brew install pkg-config
     brew install gmp
     brew install mpfr
     brew install gdal
+    brew install --cask chromium
 
 ### Usage
 
@@ -180,18 +184,18 @@ head(mlt_pa_data)
     ## Simple feature collection with 6 features and 32 fields
     ## Geometry type: MULTIPOLYGON
     ## Dimension:     XY
-    ## Bounding box:  xmin: 1382584 ymin: 4280853 xmax: 1399759 ymax: 4299615
+    ## Bounding box:  xmin: 1382584 ymin: 4280853 xmax: 1394227 ymax: 4299615
     ## Projected CRS: +proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +datum=WGS84 +ellps=WGS84 +units=m +no_defs
     ## Precision:     1500 
     ## # A tibble: 6 × 33
     ##      WDPAID WDPA_PID  PA_DEF NAME  ORIG_NAME DESIG DESIG_ENG DESIG_TYPE IUCN_CAT
     ##       <dbl> <chr>     <chr>  <chr> <chr>     <chr> <chr>     <chr>      <chr>   
-    ## 1    194425 194425    PA     'Il-… 'Il-Gżej… Rise… Nature R… National   Ia      
+    ## 1    194425 194425    PA     Il-G… Il-Gżejj… Rise… Nature R… National   Ia      
     ## 2    194420 194420    PA     Filf… Filfla    Rise… Nature R… National   Ia      
-    ## 3 555588631 555588631 PA     Il-M… Il-Majji… Park… National… National   II      
-    ## 4    174757 174757    PA     Il-Ġ… Il-Ġonna… List… List of … National   III     
-    ## 5    174758 174758    PA     Bidn… Bidnija,… List… List of … National   III     
-    ## 6    194415 194415    PA     'Il-… 'Il-Ġonn… List… List of … National   III     
+    ## 3 555700375 555700375 PA     Il-P… Il-Ponta… Rise… Nature R… National   Ia      
+    ## 4 555588631 555588631 PA     Il-M… Il-Majji… Park… National… National   II      
+    ## 5    194418 194418    PA     Il-B… Il-Ballu… List… List of … National   III     
+    ## 6    194415 194415    PA     Il-Ġ… Il-Ġonna… List… List of … National   III     
     ## # ℹ 24 more variables: INT_CRIT <chr>, MARINE <chr>, REP_M_AREA <dbl>,
     ## #   GIS_M_AREA <dbl>, REP_AREA <dbl>, GIS_AREA <dbl>, NO_TAKE <chr>,
     ## #   NO_TK_AREA <dbl>, STATUS <chr>, STATUS_YR <dbl>, GOV_TYPE <chr>,
@@ -203,15 +207,17 @@ head(mlt_pa_data)
 Finally, after cleaning the data, let’s plot a map showing Malta’s
 protected areas and color each area according to its management category
 ([as defined by the The International Union for Conservation of
-Nature](https://www.iucn.org/)).
+Nature](https://iucn.org/)).
 
 ``` r
 # reproject data to longitude/latitude for plotting
 mlt_pa_data <- st_transform(mlt_pa_data, 4326)
 
 # download basemap imagery
-bg <- get_stamenmap(unname(st_bbox(mlt_pa_data)), zoom = 8,
-                    maptype = "watercolor", force = TRUE)
+bg <- get_stadiamap(
+  unname(st_bbox(mlt_pa_data)), zoom = 8,
+  maptype = "stamen_terrain_background", force = TRUE
+)
 
 # make map
 ggmap(bg) +

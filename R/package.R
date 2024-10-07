@@ -29,13 +29,14 @@
 #' *Science*, **350**: 1255--1258.
 #'
 #' @name wdpar
-#' @aliases wdpar-package
 #' @docType package
-NULL
+#' @aliases wdpar-package
+"_PACKAGE"
 
 #' @import sf
 NULL
 
 # avoid false positive NOTEs during CRAN checks
 #' @importFrom rappdirs user_data_dir
+#' @importFrom withr defer
 NULL
