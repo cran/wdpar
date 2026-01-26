@@ -1,3 +1,48 @@
+# wdpar 1.3.9
+
+- CRAN release.
+
+# wdpar 1.3.8.4
+
+- Update `wdpa_read()` and `wdpa_clean()` to be compatible with updates to
+  the Protected Planet database. Thanks to Joe Gosling for providing detailed
+  information on the database changes.
+- Update `wdpa_clean()` so that it shows clearer progress messages for erasing
+  spatial overlaps, throws a warning if attempting to erase overlaps from
+  particularly large datasets, trims white space characters from all
+  fields containing character values, and can optionally skip steps for
+  repairing geometries if specified by the user (per the new
+  `repair_geometries` parameter) (#95). Thanks to Alexandre Courtiol
+  (\@courtiol) for feature suggestion.
+- Update vignette. Thanks to Alexandre Courtiol (\@courtiol) for code review.
+
+# wdpar 1.3.8.3
+
+- Update `wdpa_read()` to use the _archive_ package for unzipping files. This
+  is needed to ensure compatibility with Windows operating systems, because the
+  built-in `unzip()` function is not robust enough against invalid characters.
+  Thanks to Aharon Fleury for bug report.
+- Update `wdpa_fetch()` documentation with information about another misleading
+  error message that is not a real error (#90). Thanks to Evan Muise (\@emuise)
+  for bug report.
+- Update `st_repair_geometry()` to specify correct installation instructions
+  for the _prepr_ package in the error message.
+
+# wdpar 1.3.8.2
+
+- Update `st_repair_geometry()` documentation to specify correct installation
+  instructions for the _prepr_ package (#89). Thanks to Jason Everett
+  (\@jaseeverett) for bug report.
+- Update `wdpa_url()` to provide correctly formatted error message when
+  it can't find matching CSS queries.
+
+# wdpar 1.3.8.1
+
+- Update `wdpa_read()` so that it can import country-specific data in
+  shapefile format that have been manually downloaded from ProtectedPlanet
+  (#87). Thanks to Florent Bédécarrats (\@fBedecarrats) for bug report.
+- Minor improvements to documentation.
+
 # wdpar 1.3.8
 
 - CRAN release.
@@ -10,7 +55,7 @@
 # wdpar 1.3.7.3
 
 - Fix bugs in `wdpa_fetch()` and `wdpa_read()` on MacOS.
-  Thanks to Jason Everett (@jaseeverett) for code contribution.
+  Thanks to Jason Everett (\@jaseeverett) for code contribution.
 - Update DESCRIPTION with _prepr_ package information.
 - Update README with Chromium dependencies.
 - Update global example global processing script with increased precision.
